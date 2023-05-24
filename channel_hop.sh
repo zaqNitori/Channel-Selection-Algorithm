@@ -12,8 +12,6 @@ interface="${1}"
 ifconfig wlan0 down
 ifconfig wlan0-2 down
 
-awk -f frame_scan.awk
-
 for ch in ${channel_24}
 do
     echo "${interface} Setting channel ${ch}"
