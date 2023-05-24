@@ -28,7 +28,8 @@ function Scan() {
 
 function Show() {
 
-    printf "Frames for each channel\n"
+    printf "\n!!! Scan End!!!\n\n"
+    printf "\n\nFrames for each channel\n"
     for(f_subs in frame) {
         split(f_subs, f, SUBSEP)
         if(f[1] != "2G") continue
@@ -39,7 +40,6 @@ function Show() {
         printf "%d[%d] => %d\n", freq, f[2], num
     }
 
-    printf "\n!!! Scan End!!!\n\n"
 }
 
 BEGIN {
