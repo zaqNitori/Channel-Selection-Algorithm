@@ -1,6 +1,6 @@
 #!/bin/ash
 
-channel_24="1 2 3 4 5 6 7 8 9 10 11"
+channel_24="1 2 3 4 5 6 7 8 9 10 11 12 13 14"
 
 if [[ $# -eq 0 ]]
     then
@@ -21,7 +21,7 @@ done
 
 pkill tcpdump
 
-echo "Channel Hopping Done!"
+echo "\nChannel Hopping Done!"
 iw dev "${interface}" set channel 6
 ifconfig wlan0 up
 ifconfig wlan0-2 up
