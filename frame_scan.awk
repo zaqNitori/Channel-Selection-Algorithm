@@ -17,12 +17,14 @@ function Initial() {
 
 function Scan() {
     loop = 1
+    phy = "2G"
     cmd = "tcpdump -ne -y ieee802_11_radio -i wlan0-1 -v -t -s0 -e"
     while(cmd | getline) {
         pos = index($0, "MHz")
+        if(pos == 0) continue
         freq = substr($0, pos-5, 4)
-        chan = channel["2G", freq, "chan"]
-        frame[chan]++
+        chan = channel[phy, freq, "chan"]
+        frame[phy, chan]++
     }
 }
 
@@ -44,6 +46,6 @@ function Show() {
 
 BEGIN {
     Initial()
-    #Scan()
+    Scan()
     Show()
 }
