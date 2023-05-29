@@ -18,7 +18,7 @@ function Initial() {
 function Scan() {
     loop = 1
     phy = "2G"
-    cmd = "tcpdump -ne -y ieee802_11_radio -i wlan0-1 -v -t -s0 -e"
+    cmd = "tcpdump -ne -y ieee802_11_radio -i "interface" -v -t -s0 -e"
     while(cmd | getline) {
         pos = index($0, "MHz")
         if(pos == 0) continue
@@ -45,6 +45,7 @@ function Show() {
 }
 
 BEGIN {
+    interface=ARGV[1]
     Initial()
     Scan()
     Show()
