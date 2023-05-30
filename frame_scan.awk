@@ -34,6 +34,7 @@ function Show() {
 
     printf "\n!!! Scan End!!!\n\n"
     printf "\n\nFrames for each channel\n"
+    cmd = "sort -n"
     for(f_subs in frame) {
         split(f_subs, f, SUBSEP)
         if(f[1] != "2G") continue
@@ -41,9 +42,10 @@ function Show() {
         chan = f[2]
         freq = channel[phy, chan, "freq"]
         num = frame[phy, chan]
-        printf "%d[%d] => %d\n", freq, f[2], num
+        printf "%d[%d] => %d\n", freq, f[2], num | cmd
     }
 
+    close(cmd)
 }
 
 BEGIN {
