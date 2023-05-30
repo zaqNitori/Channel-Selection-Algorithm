@@ -13,6 +13,7 @@ function Initial() {
         channel[phy, chan, "freq"] = freq
         frame[phy, chan] = 0
     }
+    close(cmd)
 }
 
 function Scan() {
@@ -26,6 +27,7 @@ function Scan() {
         chan = channel[phy, freq, "chan"]
         frame[phy, chan]++
     }
+    close(cmd)
 }
 
 function Show() {
