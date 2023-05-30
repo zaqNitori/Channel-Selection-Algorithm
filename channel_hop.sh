@@ -1,39 +1,24 @@
 #!/bin/ash
 
 channel_24="1 2 3 4 5 6 7 8 9 10 11 12 13"
-interface=""
-sleep_interval=1
-for_time=1
+ft=$1
+si=$2
+interface=$3
 
-while getopts i:s:f: flag
-do
-    case "${flag}" in
-        i) interface=${OPTARG};;
-        s) sleep_interval=${OPTARG};;
-        f) for_time=${OPTARG};;
-    esac
-done
+sleep 1
 
-if [ "${interface}" == "" ]; then
-    echo "Please give interface!"
-    exit 0
-fi
-
-ifconfig wlan0 down
-ifconfig wlan0-2 down
-iw dev "${interface}" set channel 14
-
-for i in $(seq 1 1 ${for_time})
+for i in $(seq 1 1 1)
 do
     for ch in ${channel_24}
     do
-        echo "${interface} Setting channel ${ch}"
-        iw dev "${interface}" set channel "${ch}"
-        sleep "${sleep_interval}"
+        iw dev wlan0-1 set channel "${ch}"
+        sleep 1
     done
 done
 
-pkill tcpdump
+#echo "${pid}"
+#kill "${pid}"
+pkill "tcpdump"
 
 echo ""
 echo "Channel Hopping Done!"
