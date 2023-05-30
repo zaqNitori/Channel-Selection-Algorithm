@@ -175,7 +175,24 @@ function print_iwlist() {
 	}
 	close(cmd)
 }
- 
+
+function my_output() {
+	cmd = "sort -n"
+	
+	for(iwphy_subs in iwphy) {
+		split(iwphy_subs, iwphy_sub, SUBSEP)
+		if(iwphy_sub[3] != "chan") continue
+		phy = iwphy_sub[1]
+		freq = iwphy_sub[2]
+		band = iwphy[phy, freq, "band"]
+		chan = iwphy[phy, freq, "chan"]
+		load = iwphy[phy, freq, "load"]
+		if(band != band_conf) continue
+		printf "%d, %d, %d\n", freq, chan, load | cmd
+	}
+	close(cmd)
+}
+
 BEGIN {
 	subcmd = ARGV[1]
 	phy_conf = ARGV[2]
@@ -195,9 +212,10 @@ BEGIN {
 		get_iwstatus()
 		if(subcmd == "get") get_iwchan()
 		else if(subcmd == "show") {
-			print_iwinfo()
-			print_iwscan()
-			print_iwlist()
+			#print_iwinfo()
+			#print_iwscan()
+			#print_iwlist()
+			my_output()
 		}
 	}
 }
