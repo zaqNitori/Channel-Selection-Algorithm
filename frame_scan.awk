@@ -32,8 +32,6 @@ function Scan() {
 
 function Show() {
 
-    printf "\n!!! Scan End!!!\n"
-    printf "Frames for each channel\n"
     cmd = "sort -n"
     for(f_subs in frame) {
         split(f_subs, f, SUBSEP)

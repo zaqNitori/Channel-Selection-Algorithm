@@ -20,8 +20,6 @@ done
 #kill "${pid}"
 pkill "tcpdump"
 
-echo ""
-echo "Channel Hopping Done!"
 iw dev "${itf}" set channel 6
 ifconfig wlan0 up
 ifconfig wlan0-2 up
