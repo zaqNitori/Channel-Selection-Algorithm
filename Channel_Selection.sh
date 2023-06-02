@@ -7,7 +7,6 @@
 
 # Get output from iwchan and store it.
 effect=`awk -f iwchan.awk show phy0`
-echo "${effect}"
 
 # Then will call frame scan
 
@@ -33,9 +32,16 @@ ifconfig wlan0 down
 ifconfig wlan0-2 down
 iw dev "${interface}" set channel 14
 
-./channel_hop.sh "${ft}" "${si}" "${interface}" & awk -f frame_scan.awk "${interface}"
+./channel_hop.sh "${ft}" "${si}" "${interface}" & amount=`awk -f frame_scan.awk "${interface}"`
 
 wait
+
+echo "Channel Effect:"
+echo "${effect}"
+echo "Frame Amount:"
+echo "${amount}"
+
+
 echo "CS Finish!!"
 
 
