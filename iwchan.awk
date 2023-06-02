@@ -188,9 +188,10 @@ function my_output() {
 		chan = iwphy[phy, freq, "chan"]
 		load = iwphy[phy, freq, "load"]
 		if(band != band_conf) continue
-		printf "%d %d,", chan, load | cmd
+		#printf "%d %d,", chan, load | cmd
+		printf "%d,%d,%d!" freq,chan,load
 	}
-	close(cmd)
+	#close(cmd)
 }
 
 BEGIN {
