@@ -11,13 +11,12 @@ for i in $(seq 1 1 $ft)
 do
     for ch in ${channel_24}
     do
+        echo "${itf} set Channel ${ch}"
         iw dev "${itf}" set channel "${ch}"
         sleep $si
     done
 done
 
-#echo "${pid}"
-#kill "${pid}"
 pkill "tcpdump"
 
 iw dev "${itf}" set channel 6
