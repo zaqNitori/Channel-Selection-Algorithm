@@ -19,9 +19,3 @@ done
 
 pkill "tcpdump"
 
-iw dev "${itf}" set channel 6
-ifconfig wlan0 up
-ifconfig wlan0-2 up
-sleep 1
-
-wifi
