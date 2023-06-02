@@ -36,11 +36,7 @@ iw dev "${interface}" set channel 14
 
 wait
 
-echo "Channel Effect:"
-echo "${effect}"
-echo "Frame Amount:"
-echo "${amount}"
-
+awk -f Combine.awk "${effect}" "${amount}"
 
 echo "CS Finish!!"
 
