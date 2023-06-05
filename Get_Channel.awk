@@ -11,7 +11,8 @@ function Get_Channel() {
         cmd = "cat channel5G.txt"
 
     while(cmd | getline) {
-        if($2 == 14) continue
+        if($2 == 14 && phy == "phy0") continue
+        if($2 > 165 && phy == "phy1") continue
         chan=chan $2" "
     }
     close(cmd)
