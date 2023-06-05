@@ -36,7 +36,7 @@ original_chan=`echo ${itf_conf} | awk '{split($0, s, "!"); print s[3]}'`
 
 ./Control_Interface.sh d "${non_monitor}" "${monitor}" 14
 
-./channel_hop.sh "${ft}" "${si}" "${monitor}" & amount=`awk -f frame_scan.awk "${monitor}"`
+./channel_hop.sh "${ft}" "${si}" "${monitor}" "${phy}" & amount=`awk -f frame_scan.awk "${phy}" "${monitor}"`
 wait
 
 ./Control_Interface.sh u "${non_monitor}" "${monitor}" "${original_chan}"

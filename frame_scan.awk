@@ -38,7 +38,7 @@ function Show() {
     cmd = "sort -n"
     for(f_subs in frame) {
         split(f_subs, f, SUBSEP)
-        if(f[1] != "2G") continue
+        if(f[1] != phy) continue
         phy = f[1]
         chan = f[2]
         freq = channel[phy, chan, "freq"]
