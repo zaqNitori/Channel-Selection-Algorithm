@@ -4,11 +4,13 @@
 #
 
 function Initial() {
+    # Decide which channel list to read according to the input
     if(phy == "phy0")
         cmd = "cat channel2G.txt"
     else
         cmd = "cat channel5G.txt"
 
+    # Initial the array while reading the channel list
     while(cmd | getline) {
         freq = $1
         chan = $2
@@ -22,12 +24,18 @@ function Initial() {
 function Scan() {
     
     cmd = "tcpdump -ne -y ieee802_11_radio -i "interface" -v -t -s0 -e"
+
+    # Reading Result of Tcpdump
     while(cmd | getline) {
         pos = index($0, "MHz")
         if(pos == 0) continue
+
+        # Extract the freq
         freq = substr($0, pos-5, 4)
         chan = channel[phy, freq, "chan"]
         if(chan == 14) continue
+
+        # Counting the frame amounts
         frame[phy, chan]++
     }
     close(cmd)
@@ -35,7 +43,6 @@ function Scan() {
 
 function Show() {
 
-    cmd = "sort -n"
     for(f_subs in frame) {
         split(f_subs, f, SUBSEP)
         if(f[1] != phy) continue
@@ -43,11 +50,10 @@ function Show() {
         chan = f[2]
         freq = channel[phy, chan, "freq"]
         num = frame[phy, chan]
-        #printf "%d[%d] => %d\n", freq, f[2], num | cmd
+        
         printf "%d,%d,%d!", freq, f[2], num
     }
 
-    #close(cmd)
 }
 
 BEGIN {
