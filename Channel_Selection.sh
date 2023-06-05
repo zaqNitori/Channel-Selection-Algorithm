@@ -5,48 +5,42 @@
 # and combine them to show a more precisely channel measurement.
 #
 
-# Get output from iwchan and store it.
-effect=`awk -f iwchan.awk show phy0`
-
-# Then will call frame scan
-
 interface=""
+phy=""
 si=1
 ft=1
 
-while getopts i:s:f: flag
+while getopts i:s:f:p: flag
 do
     case "${flag}" in
+        p) phy=${OPTARG};;
         i) interface=${OPTARG};;
         s) si=${OPTARG};;
         f) ft=${OPTARG};;
     esac
 done
 
-if [ "${interface}" == "" ]; then
-    echo "Please give interface!"
+if [ "${phy}" == "" ]; then
+    echo "Please give phy!"
     exit 0
 fi
 
-# Set same phy interface down so we can easily switch channel 
-ifconfig wlan0 down
-ifconfig wlan0-2 down
-iw dev "${interface}" set channel 14
+# Get output from iwchan and store it.
+effect=`awk -f iwchan.awk show ${phy}`
 
-# Call channel_hop and frame_scan to capture frame amount
-./channel_hop.sh "${ft}" "${si}" "${interface}" & amount=`awk -f frame_scan.awk "${interface}"`
+
+itf_conf=`awk -f Search_Interface.awk ${phy}`
+non_monitor=`echo ${itf_conf} | awk '{split($0, s, "!"); print s[1]}'`
+monitor=`echo ${itf_conf} | awk '{split($0, s, "!"); print s[2]}'`
+original_chan=`echo ${itf_conf} | awk '{split($0, s, "!"); print s[3]}'`
+
+./Control_Interface.sh d "${non_monitor}" "${monitor}" 14
+
+./channel_hop.sh "${ft}" "${si}" "${monitor}" & amount=`awk -f frame_scan.awk "${monitor}"`
 wait
 
-# After frame_scan then set config back for normal use
-iw dev "${itf}" set channel 6
-ifconfig wlan0 up
-ifconfig wlan0-2 up
-sleep 1
+./Control_Interface.sh u "${non_monitor}" "${monitor}" "${original_chan}"
 
-# Let the services reload the config
-wifi
-
-# Call another awk script to format the data
 awk -f Combine.awk "${effect}" "${amount}"
 
 echo "CS Finish!!"
