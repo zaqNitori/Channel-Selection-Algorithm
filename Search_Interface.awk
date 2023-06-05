@@ -24,10 +24,18 @@ function Get_Interface() {
                 itf = $2
             }
             else if(index($0, "type") != 0) {
-                if($2 == "monitor")
-                    monitor = monitor itf " "
-                else
-                    non_monitor = non_monitor itf " "
+                if($2 == "monitor") {
+                    if(monitor == "")
+                        monitor = itf
+                    else
+                        monitor = monitor " " itf
+                }
+                else {
+                    if(non_monitor == "")
+                        non_monitor = itf
+                    else
+                        non_monitor = non_monitor " " itf
+                }
             }
             else if(index($0, "channel") != 0) {
                 chan = $2
