@@ -1,15 +1,17 @@
 #!/bin/ash
 
-channel_24="1 2 3 4 5 6 7 8 9 10 11 12 13"
 ft=$1
 si=$2
 itf=$3
+phy=$4
+
+chan=`awk -f Get_Channel.awk "${phy}"`
 
 sleep 1
 
 for i in $(seq 1 1 $ft)
 do
-    for ch in ${channel_24}
+    for ch in ${chan}
     do
         echo "${itf} set Channel ${ch}"
         iw dev "${itf}" set channel "${ch}"
