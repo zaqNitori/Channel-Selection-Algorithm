@@ -27,7 +27,7 @@ function get_iwdev() {
 		if($0 ~ /^\s*phy\x23/)
 			phy = gensub(/^\s*(\w+)\x23([0-9]+)$/, "\\1\\2", 1, $0)
 		else if($0 ~ /^\s*Interface\s/)
-			dev = gensub(/^\s*\w*\s(\w+)$/, "\\1", 1, $0)
+			dev = $2
 		else if($0 ~ /^\s*channel\s/) {
 			freq = gensub(/^.*\(([0-9]+)\s*MHz\).*$/, "\\1", 1, $0)
 			iwdev[phy, dev, "freq"] = freq
