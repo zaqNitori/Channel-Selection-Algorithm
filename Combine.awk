@@ -4,29 +4,41 @@
 #
 
 function seperate_Effect() {
+    # Split the original String to get each channel
     n = split(effect, ce, "!")
 
+    # for loop the array
     for( i = 1; i < n; i++) {
+        # split each channel string to get effect data
         split(ce[i], s, ",")
 
+        # create freq and channel mapping
         freq2chan[s[1]] = s[2]
+
+        # store effect values and can use freq + chan to get them
         out[s[1], s[2], "effect"] = s[3]
     }
 
 }
 
 function seperate_Amount() {
+    # Split the original String to get each channel
     n = split(amount, fa, "!")
 
+    # for loop the array
     for( i = 1; i < n; i++) {
+        # split each channel string to get amount data
         split(fa[i], s, ",")
 
+        # store effect values and can use freq + chan to get them
         out[s[1], s[2], "amount"] = s[3]
     }
 }
 
 function show() {
     cmd = "sort -n"
+
+    # format the output
     printf "\n\nFreq\tChannel\tEffect\tAmount\n"
 
     for(tmp in freq2chan) {
@@ -38,6 +50,7 @@ function show() {
         amt = out[freq, chan, "amount"]
         if(chan == "14") continue
 
+        # show output in the ascending order
         printf "%d\t%d\t%d\t%d\n", freq, chan, eft, amt | cmd
     }
 
