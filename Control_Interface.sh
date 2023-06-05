@@ -53,7 +53,7 @@ function Set_Interface_Down() {
 
     for itf in $2
     do
-        iw dev ${itf} set channel 14
+        iw dev ${itf} set channel $3
         break
     done
 }
