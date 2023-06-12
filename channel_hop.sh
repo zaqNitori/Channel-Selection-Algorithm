@@ -9,6 +9,7 @@ phy=$4
 # Get Channel List
 chan=`awk -f Get_Channel.awk "${phy}"`
 
+# Wait for tcpdump do startup
 sleep 1
 
 # Start Channel hop
@@ -23,5 +24,5 @@ do
 done
 
 # Stop tcpdump capturing
-pkill "tcpdump"
-
+pid=`ps | grep -E "tcpdump.*ieee802_11_radio.*${itf}" | grep -v "grep" | awk '{print $1}'`
+kill ${pid}
