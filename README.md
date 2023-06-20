@@ -58,4 +58,4 @@ Should input positive integer.
 f   => To set the channel hopping loop time. Default 1 time
 Should input positive integer.
 ```
-
+* During the algorithm all of your virtual interfaces except monitor on the indicated phy interface will be disable temporary. After the algorithm finish it will resume all the virtual interfaces.
