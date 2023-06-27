@@ -5,6 +5,12 @@
 # and combine them to show a more precisely channel measurement.
 #
 
+check=`opkg list-installed | grep "tcpdump"`
+if [ "${check}" == "" ]; then
+    echo "Please install tcpdump!"
+    exit 0
+fi
+
 # Variable Setting
 phy=""
 si=1
