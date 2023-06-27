@@ -3,17 +3,25 @@
 # Use tcpdump to scan frames
 #
 
+function extract(str) {
+    return substr(str, 2, length(str) - 2)
+}
+
 function Initial() {
-    # Decide which channel list to read according to the input
-    if(phy == "phy0")
-        cmd = "cat channel2G.txt"
-    else
-        cmd = "cat channel5G.txt"
+    
+    limit=5000
+    # Search available channel by using iw phy command
+    cmd="iw phy | grep -E \"MHz.*dBm\""
 
     # Initial the array while reading the channel list
     while(cmd | getline) {
-        freq = $1
-        chan = $2
+
+        # Determine the current phy interface and filtout the unmatched
+        if($2 > limit && phy == "phy0") continue
+        if($2 < limit && phy == "phy1") continue
+
+        freq = $2
+        chan = extract($4)
         channel[phy, freq, "chan"] = chan
         channel[phy, chan, "freq"] = freq
         frame[phy, chan] = 0
