@@ -60,7 +60,7 @@ function Get_Interface() {
     if(phy == "phy0")
         waiting = "14"
     else
-        waiting = chan
+        waiting = "100"
     
     output = output"!"waiting
 
