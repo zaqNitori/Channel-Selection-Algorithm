@@ -1,7 +1,7 @@
 #!/bin/ash
 #
 # This script will call iwchan.awk first to get channel effect
-# and then call frame scan process to capture the flow data amount 
+# and then call frame scan process to capture the flow data information 
 # and combine them to show a more precisely channel measurement.
 #
 
@@ -50,14 +50,14 @@ waiting_chan=`echo ${itf_conf} | awk '{split($0, s, "!"); print s[4]}'`
 ./Control_Interface.sh d "${non_monitor}" "${monitor}" "${waiting_chan}"
 
 # Call frame_scan and channel_hop to capture the frames and will wait until both finish
-./channel_hop.sh "${ft}" "${si}" "${monitor}" "${phy}" & amount=`awk -f frame_scan.awk "${phy}" "${monitor}"`
+./channel_hop.sh "${ft}" "${si}" "${monitor}" "${phy}" & frame_info=`awk -f frame_scan.awk "${phy}" "${monitor}"`
 wait
 
 # Resume Interfaces Settings after capturing the frames
 ./Control_Interface.sh u "${non_monitor}" "${monitor}" "${original_chan}"
 
-# Call another awk script to combine the effect and amount data
-awk -f Combine.awk "${effect}" "${amount}"
+# Call another awk script to combine the effect and frame_info data
+awk -f Combine.awk "${effect}" "${frame_info}"
 
 # Announce that this script is finished
 echo "CS Finish!!"
