@@ -10,7 +10,7 @@ function extract(str) {
 function Initial() {
     
     # Search available channel by using iw phy command
-    cmd="iw phy "interface" channels | grep \"*\" | grep -v \"disabled\""
+    cmd="iw phy "phy" channels | grep \"*\" | grep -v \"disabled\""
 
     # Initial the array while reading the channel list
     while(cmd | getline) {
