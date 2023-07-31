@@ -17,8 +17,8 @@ function Initial() {
 
         freq = $2
         chan = extract($4)
-        channel[phy, freq, "chan"] = chan
-        channel[phy, chan, "freq"] = freq
+        freq2chan[phy, freq] = chan
+        chan2freq[phy, chan] = freq
         amount[phy, chan, "Total"] = 0
         amount[phy, chan, "Mgmt"] = 0
         amount[phy, chan, "Ctrl"] = 0
@@ -42,12 +42,12 @@ function Scan() {
 
         # Extract the freq
         freq = substr($0, pos-5, 4)
-        chan = channel[phy, freq, "chan"]
+        chan = freq2chan[phy, freq]
         if(chan == 14) continue
 
         # Extract type and size
         split($0, tmp, "!")
-        split(tmp, good)
+        split(tmp[2], good)
         type = good[1]
         size = good[2]
 
@@ -64,12 +64,12 @@ function Scan() {
 
 function Show() {
 
-    for(f_subs in amount) {
-        split(f_subs, f, SUBSEP)
-        if(f[1] != phy) continue
-        phy = f[1]
-        chan = f[2]
-        freq = channel[phy, chan, "freq"]
+    for(subs in chan2freq) {
+        split(subs, tmp, SUBSEP)
+        
+        phy = tmp[1]
+        chan = tmp[2]
+        freq = chan2freq[phy, chan]
 
         # Get Frame Amount
         ta = amount[phy, chan, "Total"]
@@ -83,7 +83,7 @@ function Show() {
         cs = size[phy, chan, "Ctrl"]
         ds = size[phy, chan, "Data"]
 
-        printf "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d!", freq, chan, ta, ma, ca, da, ts, ms, cs, ds
+        printf "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d!", freq, chan, ta, ts, ma, ms, ca, cs, da, ds
     }
 
 }
