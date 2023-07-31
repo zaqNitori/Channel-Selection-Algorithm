@@ -9,16 +9,11 @@ function extract(str) {
 
 function Initial() {
     
-    limit=5000
     # Search available channel by using iw phy command
-    cmd="iw phy | grep -E \"MHz.*dBm\""
+    cmd="iw phy "interface" channels | grep \"*\" | grep -v \"disabled\""
 
     # Initial the array while reading the channel list
     while(cmd | getline) {
-
-        # Determine the current phy interface and filtout the unmatched
-        if($2 > limit && phy == "phy0") continue
-        if($2 < limit && phy == "phy1") continue
 
         freq = $2
         chan = extract($4)
