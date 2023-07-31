@@ -10,17 +10,12 @@ function extract(str) {
 function Get_Channel() {
 
     chan=""
-    limit=5000
     
     # Search available channel by using iw phy command
-    cmd="iw phy | grep -E \"MHz.*dBm\""
+    cmd="iw phy "phy" channels | grep \"*\" | grep -v \"disabled\""
 
     # Read the channel list and store it
     while(cmd | getline) {
-
-        # Determine the current phy interface and filtout the unmatched
-        if($2 > limit && phy == "phy0") continue
-        if($2 < limit && phy == "phy1") continue
 
         if(chan == "")
             chan = extract($4)
