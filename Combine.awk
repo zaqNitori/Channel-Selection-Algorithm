@@ -23,7 +23,7 @@ function seperate_Effect() {
 
 function seperate_FrameInfo() {
     # Split the original String to get each channel
-    n = split(amount, tmp, "!")
+    n = split(frame_info, tmp, "!")
 
     # for loop the array
     for( i = 1; i < n; i++) {
@@ -51,7 +51,7 @@ function show() {
     cmd = "sort -n"
 
     # format the output
-    printf "\n\nFreq\tChannel\tEffect\tAmount Size(Total Mgmt Ctrl Data)\n"
+    printf "\n\nFreq\tChannel\tEffect\tTotal_A\tTotal_S\tMgmt_A\tMgmt_S\tCtrl_A\tCtrl_S\tData_A\tData_S\n"
 
     for(tmp in freq2chan) {
         split(tmp, fc, SUBSEP)
