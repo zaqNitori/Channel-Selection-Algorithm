@@ -19,14 +19,21 @@ function Initial() {
         chan = extract($4)
         channel[phy, freq, "chan"] = chan
         channel[phy, chan, "freq"] = freq
-        frame[phy, chan] = 0
+        amount[phy, chan, "Total"] = 0
+        amount[phy, chan, "Mgmt"] = 0
+        amount[phy, chan, "Ctrl"] = 0
+        amount[phy, chan, "Data"] = 0
+        size[phy, chan, "Total"] = 0
+        size[phy, chan, "Mgmt"] = 0
+        size[phy, chan, "Ctrl"] = 0
+        size[phy, chan, "Data"] = 0
     }
     close(cmd)
 }
 
 function Scan() {
     
-    cmd = "tcpdump -ne -y ieee802_11_radio -i "interface" -v -t -s0 -e"
+    cmd = "tcpdump -ne -y ieee802_11_radio -i "interface" -v -t -s0 -e | grep \"!\""
 
     # Reading Result of Tcpdump
     while(cmd | getline) {
@@ -38,23 +45,45 @@ function Scan() {
         chan = channel[phy, freq, "chan"]
         if(chan == 14) continue
 
+        # Extract type and size
+        split($0, tmp, "!")
+        split(tmp, good)
+        type = good[1]
+        size = good[2]
+
         # Counting the frame amounts
-        frame[phy, chan]++
+        amount[phy, chan, "Total"]++
+        amount[phy, chan, type]++
+
+        # Collecting the frame sizes
+        size[phy, chan, "Total"] += size + 0
+        size[phy, chan, type] += size + 0
     }
     close(cmd)
 }
 
 function Show() {
 
-    for(f_subs in frame) {
+    for(f_subs in amount) {
         split(f_subs, f, SUBSEP)
         if(f[1] != phy) continue
         phy = f[1]
         chan = f[2]
         freq = channel[phy, chan, "freq"]
-        num = frame[phy, chan]
+
+        # Get Frame Amount
+        ta = amount[phy, chan, "Total"]
+        ma = amount[phy, chan, "Mgmt"]
+        ca = amount[phy, chan, "Ctrl"]
+        da = amount[phy, chan, "Data"]
         
-        printf "%d,%d,%d!", freq, f[2], num
+        # Get Frame Size
+        ts = size[phy, chan, "Total"]
+        ms = size[phy, chan, "Mgmt"]
+        cs = size[phy, chan, "Ctrl"]
+        ds = size[phy, chan, "Data"]
+
+        printf "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d!", freq, chan, ta, ma, ca, da, ts, ms, cs, ds
     }
 
 }
