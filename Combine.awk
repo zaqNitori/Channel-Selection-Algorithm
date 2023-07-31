@@ -34,16 +34,16 @@ function seperate_FrameInfo() {
         chan = info[2]
 
         # Store Frame Amount
-        amount[freq, chan, "Total"]
-        amount[freq, chan, "Mgmt"]
-        amount[freq, chan, "Ctrl"]
-        amount[freq, chan, "Data"]
+        amount[freq, chan, "Total"] = info[3]
+        amount[freq, chan, "Mgmt"] = info[5]
+        amount[freq, chan, "Ctrl"] = info[7]
+        amount[freq, chan, "Data"] = info[9]
         
         # Store Frame Size
-        size[freq, chan, "Total"]
-        size[freq, chan, "Mgmt"]
-        size[freq, chan, "Ctrl"]
-        size[freq, chan, "Data"]
+        size[freq, chan, "Total"] = info[4]
+        size[freq, chan, "Mgmt"] = info[6]
+        size[freq, chan, "Ctrl"] = info[8]
+        size[freq, chan, "Data"] = info[10]
     }
 }
 
