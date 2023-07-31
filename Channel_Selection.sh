@@ -5,8 +5,10 @@
 # and combine them to show a more precisely channel measurement.
 #
 
-check=`opkg list-installed | grep "tcpdump"`
-if [ "${check}" == "" ]; then
+check=`tcpdump --version`
+res=$?
+
+if [ $res -ne 0 ]; then
     echo "Please install tcpdump!"
     exit 0
 fi
