@@ -8,7 +8,7 @@ calculate the channel interference.
 * Secondly, will use tcpdump with channel hopping to monitor the link layer frame to measure the data flow between these sources.
 
 ### Challenges Faced
-* The origin output for ieee802_11_radio in tcpdump does not show the type of framem also it does not show the payload length. So the data flow we get is not accuracy so far.
+* The origin output for ieee802_11_radio in tcpdump does not show the type of framem also it does not show the payload length. So the data flow we get is not accuracy so far. (Solved by modified tcpdump source code)
 
 ## How to Install and Run the Project
 * The OpenWrt Version currently in use is OpenWrt 22.03.2
