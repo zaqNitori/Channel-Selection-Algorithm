@@ -11,7 +11,7 @@ calculate the channel interference.
 * The origin output for ieee802_11_radio in tcpdump does not show the type of framem also it does not show the payload length. So the data flow we get is not accuracy so far. (Solved by modified tcpdump source code)
 
 ## How to Install and Run the Project
-* For more information please check [this note]([https://openwrt.org/toh/start](https://hackmd.io/xiTGO5iHQNisDNJ2qYcDjw)). But first half were write in Chinese and second half were write in English.
+* For more information please check [this note](https://hackmd.io/@zaqNitori/ByzbpHND2). But first half were write in Chinese and second half were write in English.
 * The OpenWrt Version currently in use is OpenWrt 22.03.2
 
 1. For your router devices, please goto following url to check if OpenWrt supports your devices and flash them into OpenWrt System.<br />
