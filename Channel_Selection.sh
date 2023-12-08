@@ -5,6 +5,15 @@
 # and combine them to show a more precisely channel measurement.
 #
 
+# Show help messages
+function show_help() {
+    echo "-d for debug mode. Default 0, set to 1 will show more msg."
+    echo "-p to specify which frequency band want to use."
+    echo "-s for scan interval."
+    echo "-f for the recursive time."
+    echo ""
+}
+
 check=`tcpdump --version`
 res=$?
 
@@ -17,14 +26,20 @@ fi
 phy=""
 si=1
 ft=1
+debug=0
 
 # Get Setting From Option Arguments
-while getopts i:s:f:p: flag
+while getopts i:s:f:p:d: flag
 do
     case "${flag}" in
         p) phy=${OPTARG};;
         s) si=${OPTARG};;
         f) ft=${OPTARG};;
+        d) debug=${OPTARG};;
+        h) 
+            show_help
+            exit 0
+            ;;
     esac
 done
 
@@ -47,14 +62,14 @@ original_chan=`echo ${itf_conf} | awk '{split($0, s, "!"); print s[3]}'`
 waiting_chan=`echo ${itf_conf} | awk '{split($0, s, "!"); print s[4]}'`
 
 # Use the data above to down interfaces
-./Control_Interface.sh d "${non_monitor}" "${monitor}" "${waiting_chan}"
+./Control_Interface.sh d "${non_monitor}" "${monitor}" "${waiting_chan}" "${debug}"
 
 # Call frame_scan and channel_hop to capture the frames and will wait until both finish
-./channel_hop.sh "${ft}" "${si}" "${monitor}" "${phy}" & frame_info=`awk -f frame_scan.awk "${phy}" "${monitor}"`
+./channel_hop.sh "${ft}" "${si}" "${monitor}" "${phy}" "${debug}" & frame_info=`awk -f frame_scan.awk "${phy}" "${monitor}"`
 wait
 
 # Resume Interfaces Settings after capturing the frames
-./Control_Interface.sh u "${non_monitor}" "${monitor}" "${original_chan}"
+./Control_Interface.sh u "${non_monitor}" "${monitor}" "${original_chan}" "${debug}"
 
 # Call another awk script to combine the effect and frame_info data
 awk -f Combine.awk "${effect}" "${frame_info}"

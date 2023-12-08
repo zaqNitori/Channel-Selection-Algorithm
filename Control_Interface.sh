@@ -14,11 +14,15 @@ function show_help() {
 # Check is input correct or not
 function IsValid() {
 
-    if [ $1 == "d" ] 
-    then
+    if [ $2 -eq 0 ]; then
+        return
+    fi
+
+    #if [ $1 == "d" ] && [ $2 -eq 1 ]; then
+    if [ $1 == "d" ]; then
         echo "Interface down action mode!"
-    elif [ $1 == "u" ] 
-    then 
+    #elif [ $1 == "u" ] && [ $2 -eq 1 ]; then 
+    elif [ $1 == "u" ]; then
         echo "Interface up action mode!"
     else 
         echo "Wrong option!"
@@ -26,10 +30,6 @@ function IsValid() {
         exit 0
     fi
 }
-
-# Check input first
-IsValid "$1"
-
 
 function Set_Interface_Up() {
     
@@ -69,9 +69,14 @@ function Set_Interface_Down() {
 
 # Get input values.
 # And these input values more likely be in string arrays
+act=$1
 non_monitor=$2
 monitor=$3
 chan=$4
+debug=$5
+
+# Check input first
+IsValid "${act}" $debug
 
 # decide which action to do depend on the given input
 if [ $1 == "u" ]

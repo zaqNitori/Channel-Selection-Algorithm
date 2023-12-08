@@ -5,6 +5,7 @@ ft=$1
 si=$2
 itf=$3
 phy=$4
+debug=$5
 
 # Get Channel List
 chan=`awk -f Get_Channel.awk "${phy}"`
@@ -17,7 +18,11 @@ for i in $(seq 1 1 $ft)
 do
     for ch in ${chan}
     do
-        echo "${itf} set Channel ${ch}"
+        if [ ${debug} -eq 1 ]
+        then
+            echo "${itf} set Channel ${ch}"
+        fi
+        
         iw dev "${itf}" set channel "${ch}"
         sleep $si
     done
