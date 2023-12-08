@@ -14,6 +14,7 @@ function show_help() {
     echo "-p to specify which frequency band want to use."
     echo "-s for scan interval."
     echo "-f for the recursive time."
+    echo "-w write output into file."
     echo ""
 }
 
@@ -30,15 +31,21 @@ phy=""
 si=1
 ft=1
 debug=0
+writeFile=""
+writeFlag=0
 
 # Get Setting From Option Arguments
-while getopts i:s:f:p:d: flag
+while getopts i:s:f:p:d:w: flag
 do
     case "${flag}" in
         p) phy=${OPTARG};;
         s) si=${OPTARG};;
         f) ft=${OPTARG};;
         d) debug=${OPTARG};;
+        w) 
+            writeFile=${OPTARG}
+            writeFlag=1
+            ;;
         h) 
             show_help
             exit 0
@@ -75,7 +82,16 @@ wait
 ./Control_Interface.sh u "${non_monitor}" "${monitor}" "${original_chan}" "${debug}"
 
 # Call another awk script to combine the effect and frame_info data
-awk -f Combine.awk "${effect}" "${frame_info}"
+result=`awk -f Combine.awk "${effect}" "${frame_info}"`
+
+now=$(date +"%Y-%m-%d %H:%M:%S")
+if [ $writeFlag -eq 1 ]; then
+    echo "" >> "${writeFile}"
+    echo "${now}" >> "${writeFile}"
+    echo "${result}" | tee -a "${writeFile}"
+else
+    echo "${result}"
+fi
 
 # Announce that this script is finished
 echo "----------Channel_Selection.sh----------" >> "${logFile}"
