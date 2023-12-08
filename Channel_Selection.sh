@@ -5,6 +5,9 @@
 # and combine them to show a more precisely channel measurement.
 #
 
+logFile="logCS"
+echo "----------Channel_Selection.sh----------" >> "${logFile}"
+
 # Show help messages
 function show_help() {
     echo "-d for debug mode. Default 0, set to 1 will show more msg."
@@ -75,7 +78,8 @@ wait
 awk -f Combine.awk "${effect}" "${frame_info}"
 
 # Announce that this script is finished
-echo "CS Finish!!"
+echo "----------Channel_Selection.sh----------" >> "${logFile}"
+echo "CS Finish!!" | tee -a "${logFile}"
 
 
 

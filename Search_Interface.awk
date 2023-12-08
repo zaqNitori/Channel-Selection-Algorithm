@@ -53,6 +53,14 @@ function Get_Interface() {
 
     close(cmd)
 
+    # Print to Log
+    { 
+        printf "---------Search_Interface.awk---------\n" >> "logCS"
+        printf "non_monitor: %s\n", non_monitor >> "logCS"
+        printf "monitor: %s\n", monitor >> "logCS"
+        printf "chan: %s\n", chan >> "logCS"
+    }
+
     # Combine the data to return
     output = non_monitor "!" monitor "!" chan
 

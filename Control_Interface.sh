@@ -4,6 +4,9 @@
 # and will switch interface's channel to specific 
 #
 
+logFile="logCS"
+echo "---------Control_Interface.sh---------" >> "${logFile}"
+
 # Show help messages
 function show_help() {
     echo "-d for interface down, which use before channel_hopping so that iw command can successfully working."
@@ -14,16 +17,22 @@ function show_help() {
 # Check is input correct or not
 function IsValid() {
 
-    if [ $2 -eq 0 ]; then
-        return
-    fi
+    echo "IsValid()" >> "${logFile}"
+    down="Interface down action mode!"
+    up="Interface up action mode!"
 
-    #if [ $1 == "d" ] && [ $2 -eq 1 ]; then
     if [ $1 == "d" ]; then
-        echo "Interface down action mode!"
-    #elif [ $1 == "u" ] && [ $2 -eq 1 ]; then 
+        if [ $2 -eq 1 ]; then
+            echo "${down}" | tee -a "${logFile}"
+        else
+            echo "${down}" >> "${logFile}"
+        fi
     elif [ $1 == "u" ]; then
-        echo "Interface up action mode!"
+        if [ $2 -eq 1 ]; then
+            echo "${up}" | tee -a "${logFile}"
+        else
+            echo "${up}" >> "${logFile}"
+        fi
     else 
         echo "Wrong option!"
         show_help
@@ -33,10 +42,19 @@ function IsValid() {
 
 function Set_Interface_Up() {
     
+    echo "Set_Interface_Up()" >> "${logFile}"
+
     # Set channel back to the original channel first, otherwise will be denied
     for itf in $2
     do
         iw dev ${itf} set channel $3
+
+        cmd="iw dev ${itf} set channel $3"
+        if [ $4 -eq 1 ]; then
+            echo "${cmd}" | tee -a "${logFile}"
+        else
+            echo "${cmd}" >> "${logFile}"
+        fi
         break
     done
 
@@ -44,25 +62,48 @@ function Set_Interface_Up() {
     for itf in $1
     do
         ifconfig ${itf} up
+
+        cmd="ifconfig ${itf} up"
+        if [ $4 -eq 1 ]; then
+            echo "${cmd}" | tee -a "${logFile}"
+        else
+            echo "${cmd}" >> "${logFile}"
+        fi
     done
 
     # wait 1s and then reload and restart the service
     sleep 1
-    wifi
+    wifi >> "${logFile}"
 }
 
 function Set_Interface_Down() {
+
+    echo "Set_Interface_Down()" >> "${logFile}"
 
     # Set interfaces down first, so that we can set channel successfully
     for itf in $1
     do
         ifconfig ${itf} down
+        
+        cmd="ifconfig ${itf} down"
+        if [ $4 -eq 1 ]; then
+            echo "${cmd}" | tee -a "${logFile}"
+        else
+            echo "${cmd}" >> "${logFile}"
+        fi
     done
 
     # Set channel to waiting channel before channel hopping
     for itf in $2
     do
         iw dev ${itf} set channel $3
+        
+        cmd="iw dev ${itf} set channel $3"
+        if [ $4 -eq 1 ]; then
+            echo "${cmd}" | tee -a "${logFile}"
+        else
+            echo "${cmd}" >> "${logFile}"
+        fi
         break
     done
 }
@@ -81,8 +122,8 @@ IsValid "${act}" $debug
 # decide which action to do depend on the given input
 if [ $1 == "u" ]
 then
-Set_Interface_Up "${non_monitor}" "${monitor}" "${chan}"
+Set_Interface_Up "${non_monitor}" "${monitor}" "${chan}" $debug
 else
-Set_Interface_Down "${non_monitor}" "${monitor}" "${chan}"
+Set_Interface_Down "${non_monitor}" "${monitor}" "${chan}" $debug
 fi
 

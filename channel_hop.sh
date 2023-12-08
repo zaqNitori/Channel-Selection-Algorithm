@@ -9,18 +9,24 @@ debug=$5
 
 # Get Channel List
 chan=`awk -f Get_Channel.awk "${phy}"`
+logFile="logCS"
 
 # Wait for tcpdump do startup
 sleep 1
 
+echo "---------channel_hop.sh---------" >> "${logFile}"
 # Start Channel hop
 for i in $(seq 1 1 $ft)
 do
     for ch in ${chan}
     do
-        if [ ${debug} -eq 1 ]
-        then
-            echo "${itf} set Channel ${ch}"
+        cmd="${itf} set Channel ${ch}"
+        if [ ${debug} -eq 1 ]; then
+            #echo "${itf} set Channel ${ch}" | tee -a "${logFile}"
+            echo "${cmd}" | tee -a "${logFile}"
+        else
+            #echo "${itf} set Channel ${ch}" >> "${logFile}"
+            echo "${cmd}" >> "${logFile}"
         fi
         
         iw dev "${itf}" set channel "${ch}"
