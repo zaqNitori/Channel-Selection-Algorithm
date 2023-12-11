@@ -1,5 +1,7 @@
 #!/bin/ash
 
+path="~/cs/"
+
 # Get input
 ft=$1
 si=$2
@@ -37,3 +39,4 @@ done
 # Stop tcpdump capturing
 pid=`ps | grep -E "tcpdump.*ieee802_11_radio.*${itf}" | grep -v "grep" | awk '{print $1}'`
 kill ${pid}
+echo "kill ${pid}" >> "${logFile}"
