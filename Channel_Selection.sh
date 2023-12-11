@@ -5,6 +5,7 @@
 # and combine them to show a more precisely channel measurement.
 #
 
+cd ~/cs
 logFile="logCS"
 echo "----------Channel_Selection.sh----------" >> "${logFile}"
 
@@ -59,6 +60,8 @@ if [ "${phy}" == "" ]; then
     exit 0
 fi
 
+now=$(date +"%Y-%m-%d %H:%M")
+
 # Call iwchan.awk first and then store its output
 effect=`awk -f iwchan.awk show ${phy}`
 
@@ -84,11 +87,9 @@ wait
 # Call another awk script to combine the effect and frame_info data
 result=`awk -f Combine.awk "${effect}" "${frame_info}"`
 
-now=$(date +"%Y-%m-%d %H:%M:%S")
 if [ $writeFlag -eq 1 ]; then
-    echo "" >> "${writeFile}"
-    echo "${now}" >> "${writeFile}"
-    echo "${result}" | tee -a "${writeFile}"
+    echo "${now}" > "${writeFile}"
+    echo "${result}" >> "${writeFile}"
 else
     echo "${result}"
 fi
