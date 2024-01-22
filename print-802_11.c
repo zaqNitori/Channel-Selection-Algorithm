@@ -82,7 +82,7 @@
 #define	ST_PROBE_REQUEST	0x4
 #define	ST_PROBE_RESPONSE	0x5
 /* RESERVED			0x6  */
-#define ST_RESERVED
+#define ST_RESERVED		0x7
 #define	ST_BEACON		0x8
 #define	ST_ATIM			0x9
 #define	ST_DISASSOC		0xA
