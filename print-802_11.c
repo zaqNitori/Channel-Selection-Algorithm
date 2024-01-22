@@ -1819,8 +1819,13 @@ struct cs_hdr {
 static int
 handle_reserved(netdissect_options *ndo, const u_char *p, u_int length)
 {
+	char buf[40];
 	struct cs_hdr* cshdr = (struct cshdr*)(p);
-	ND_PRINT("Get Reserved Frame, CS msg type => %02x", cshdr->type);
+	ND_PRINT(" Get Reserved Frame, CS msg type => %02x", cshdr->type);
+	
+	sprintf(buf, "echo 'CS msg type => %02x' >> tmp", cshdr->type);
+	system(buf);
+	
 	return 1;
 }
 
