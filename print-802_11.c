@@ -82,7 +82,7 @@
 #define	ST_PROBE_REQUEST	0x4
 #define	ST_PROBE_RESPONSE	0x5
 /* RESERVED			0x6  */
-/* RESERVED			0x7  */
+#define ST_RESERVED
 #define	ST_BEACON		0x8
 #define	ST_ATIM			0x9
 #define	ST_DISASSOC		0xA
@@ -105,6 +105,7 @@ static const struct tok st_str[] = {
 	{ ST_AUTH,             "Authentication"   },
 	{ ST_DEAUTH,           "DeAuthentication" },
 	{ ST_ACTION,           "Action"           },
+	{ ST_RESERVED,         "Reserved"         },
 	{ 0, NULL }
 };
 
@@ -1811,6 +1812,17 @@ trunc:
 	return 0;
 }
 
+struct cs_hdr {
+    unsigned char type;
+};
+
+static int
+handle_reserved(netdissect_options *ndo, const u_char *p, u_int length)
+{
+	struct cs_hdr* cshdr = (struct cshdr*)(p);
+	ND_PRINT("Get Reserved Frame, CS msg type => %02x", cshdr->type);
+	return 1;
+}
 
 /*********************************************************************************
  * Print Body funcs
@@ -1839,6 +1851,8 @@ mgmt_body_print(netdissect_options *ndo,
 		return handle_probe_request(ndo, p, length);
 	case ST_PROBE_RESPONSE:
 		return handle_probe_response(ndo, p, length);
+	case ST_RESERVED:
+		return handle_reserved(ndo, p, length);
 	case ST_BEACON:
 		return handle_beacon(ndo, p, length);
 	case ST_ATIM:
