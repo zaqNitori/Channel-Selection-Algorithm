@@ -1814,6 +1814,7 @@ trunc:
 
 struct cs_hdr {
     unsigned char type;
+	unsigned char channel;
 };
 
 static int
@@ -1823,9 +1824,12 @@ handle_reserved(netdissect_options *ndo, const u_char *p, u_int length)
 	struct cs_hdr* cshdr = (struct cshdr*)(p);
 	ND_PRINT(" Get Reserved Frame, CS msg type => %02x", cshdr->type);
 	
-	sprintf(buf, "echo 'CS msg type => %02x' >> tmp", cshdr->type);
+	sprintf(buf, "echo 'Set channel => %02x' >> txt", cshdr->channel);
+	//sprintf(buf, "~/tmp/test %02x");
 	system(buf);
-	
+	sprintf(buf, "echo 'Set channel => %d' >> txt", cshdr->channel);
+	system(buf);
+
 	return 1;
 }
 
