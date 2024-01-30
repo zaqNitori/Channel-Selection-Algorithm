@@ -1824,11 +1824,44 @@ handle_reserved(netdissect_options *ndo, const u_char *p, u_int length)
 	struct cs_hdr* cshdr = (struct cshdr*)(p);
 	ND_PRINT(" Get Reserved Frame, CS msg type => %02x", cshdr->type);
 	
-	sprintf(buf, "echo 'Set channel => %02x' >> txt", cshdr->channel);
-	//sprintf(buf, "~/tmp/test %02x");
+	int tp = cshdr->type;
+	switch (tp)
+    {
+    case 0:
+    /* CS Request */
+        sprintf(buf, "cd ~/cs; echo '%s' >> log", "CS Request");
+        break;
+    case 1:
+    /* CS Reply */
+        sprintf(buf, "cd ~/cs; echo '%s' >> log", "CS Reply");
+        break;
+    case 2:
+    /* CS Announcement */
+        sprintf(buf, "cd ~/cs; echo '%s' >> log", "CS Announcement");
+        break;
+    case 16:
+    /* Scan Result Request */
+        sprintf(buf, "cd ~/cs; echo '%s' >> log", "Scan Result Request");
+        break;
+    case 17:
+    /* Scan Result Reply */
+        sprintf(buf, "cd ~/cs; echo '%s' >> log", "Scan Result Reply");
+        break;
+    case 18:
+    /* Scan Announcement */
+        sprintf(buf, "cd ~/cs; echo '%s' >> log", "Scan Announcement");
+        break;
+    default:
+        sprintf(buf, "cd ~/cs; echo '%s' >> log", "Unknown Action");
+        break;
+    }
 	system(buf);
-	sprintf(buf, "echo 'Set channel => %d' >> txt", cshdr->channel);
-	system(buf);
+
+	if (cshdr->type == 0x02)
+	{
+		sprintf(buf, "cd ~/cs; ./cs.sh %d", cshdr->channel);
+		system(buf);
+	}
 
 	return 1;
 }
