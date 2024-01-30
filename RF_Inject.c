@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 
 
     /* check for capture device name on command-line */
-	if (argc == 4) {
+	if (argc >= 3) {
 		dev = argv[1];
 	}
 	else {
@@ -61,16 +61,28 @@ int main(int argc, char *argv[])
     switch (cvt)
     {
     case 0:
-    // CS Announce
+    /* CS Request */
         msg_type = 0x00;
         break;
     case 1:
-    // Scan Req
-        msg_type = 0x10;
+    /* CS Reply */
+        msg_type = 0x01;
         break;
     case 2:
-    // Scan Reply
+    /* CS Announcement */
+        msg_type = 0x02;
+        break;
+    case 3:
+    /* Scan Result Request */
+        msg_type = 0x10;
+        break;
+    case 4:
+    /* Scan Result Reply */
         msg_type = 0x11;
+        break;
+    case 5:
+    /* Scan Announce */
+        msg_type = 0x12;
         break;
     default:
         msg_type = 0xff;
