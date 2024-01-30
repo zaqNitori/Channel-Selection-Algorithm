@@ -2333,7 +2333,7 @@ ieee802_11_print(netdissect_options *ndo,
 	switch (FC_TYPE(fc)) {
 	case T_MGMT:
 		ND_PRINT(" !Mgmt ");
-		ND_PRINT("%d! ", caplen);
+		ND_PRINT("%d! ", orig_caplen);
 		get_mgmt_src_dst_mac(p - hdrlen, &src.addr, &dst.addr);
 		if (!mgmt_body_print(ndo, fc, src.addr, p, length)) {
 			nd_print_trunc(ndo);
@@ -2342,7 +2342,7 @@ ieee802_11_print(netdissect_options *ndo,
 		break;
 	case T_CTRL:
 		ND_PRINT(" !Ctrl ");
-		ND_PRINT("%d! ", caplen);
+		ND_PRINT("%d! ", orig_caplen);
 		if (!ctrl_body_print(ndo, fc, p - hdrlen)) {
 			nd_print_trunc(ndo);
 			return hdrlen;
@@ -2354,7 +2354,7 @@ ieee802_11_print(netdissect_options *ndo,
 		/* There may be a problem w/ AP not having this bit set */
 		if (FC_PROTECTED(fc)) {
 			ND_PRINT(" !Data ");
-			ND_PRINT("%d! ", caplen);
+			ND_PRINT("%d! ", orig_caplen);
 			if (!wep_print(ndo, p)) {
 				nd_print_trunc(ndo);
 				return hdrlen;
