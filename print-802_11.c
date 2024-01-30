@@ -2264,6 +2264,33 @@ ieee_802_11_hdr_print(netdissect_options *ndo,
 	}
 }
 
+static uint8_t dt_rate;  /* store Data Rate from radiotap */
+
+static void print_radio_duration(u_int origlen)
+{
+	/* IDK why should plus 16, but the src code from wireshark packet-ieee80211-radio.c do this */
+	u_int bits = 8 * origlen + 16;
+
+	if (dt_rate != 0)
+		// ND_PRINT("%.3f ", bits / (.5 * dt_rate));
+		ND_PRINT("%.3f ", 2.0 * bits / dt_rate);
+		/* the time unit of the duration is us(1e-6) */
+	else
+		ND_PRINT("%d ", 0);
+
+}
+
+static void print_more_info(char* tp, u_int origlen)
+{
+	ND_PRINT(" !");            /* Indicate Symbol */
+	ND_PRINT("%s ", tp);       /* frame type */
+	ND_PRINT("%d ", origlen);  /* frame capture length */
+	
+	print_radio_duration(origlen);  /* wlan_radio.duration */
+
+	ND_PRINT("! ");            /* Indicate Symbol */
+}
+
 static u_int
 ieee802_11_print(netdissect_options *ndo,
 		 const u_char *p, u_int length, u_int orig_caplen, int pad,
@@ -2332,8 +2359,7 @@ ieee802_11_print(netdissect_options *ndo,
 	dst.addr_string = mac48_string;
 	switch (FC_TYPE(fc)) {
 	case T_MGMT:
-		ND_PRINT(" !Mgmt ");
-		ND_PRINT("%d! ", orig_caplen);
+		print_more_info("Mgmt", orig_caplen);
 		get_mgmt_src_dst_mac(p - hdrlen, &src.addr, &dst.addr);
 		if (!mgmt_body_print(ndo, fc, src.addr, p, length)) {
 			nd_print_trunc(ndo);
@@ -2341,8 +2367,7 @@ ieee802_11_print(netdissect_options *ndo,
 		}
 		break;
 	case T_CTRL:
-		ND_PRINT(" !Ctrl ");
-		ND_PRINT("%d! ", orig_caplen);
+		print_more_info("Ctrl", orig_caplen);
 		if (!ctrl_body_print(ndo, fc, p - hdrlen)) {
 			nd_print_trunc(ndo);
 			return hdrlen;
@@ -2353,8 +2378,7 @@ ieee802_11_print(netdissect_options *ndo,
 			return hdrlen;	/* no-data frame */
 		/* There may be a problem w/ AP not having this bit set */
 		if (FC_PROTECTED(fc)) {
-			ND_PRINT(" !Data ");
-			ND_PRINT("%d! ", orig_caplen);
+			print_more_info("Data", orig_caplen);
 			if (!wep_print(ndo, p)) {
 				nd_print_trunc(ndo);
 				return hdrlen;
@@ -2895,6 +2919,7 @@ print_radiotap_field(netdissect_options *ndo,
 			 */
 			ND_PRINT("MCS %u ", rate & 0x7f);
 		} else
+			dt_rate = rate;
 			ND_PRINT("%2.1f Mb/s ", .5 * rate);
 		break;
 		}
