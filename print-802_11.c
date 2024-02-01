@@ -2266,27 +2266,27 @@ ieee_802_11_hdr_print(netdissect_options *ndo,
 
 static uint8_t dt_rate;  /* store Data Rate from radiotap */
 
-static void print_radio_duration(u_int origlen)
+static void print_radio_duration(netdissect_options *ndo, u_int origlen)
 {
 	/* IDK why should plus 16, but the src code from wireshark packet-ieee80211-radio.c do this */
 	u_int bits = 8 * origlen + 16;
 
-	if (dt_rate != 0)
+	if (dt_rate > 0)
 		// ND_PRINT("%.3f ", bits / (.5 * dt_rate));
-		ND_PRINT("%.3f ", 2.0 * bits / dt_rate);
+		ND_PRINT("%d ", 2 * bits / dt_rate);
 		/* the time unit of the duration is us(1e-6) */
 	else
 		ND_PRINT("%d ", 0);
 
 }
 
-static void print_more_info(char* tp, u_int origlen)
+static void print_more_info(netdissect_options *ndo, char* tp, u_int origlen)
 {
 	ND_PRINT(" !");            /* Indicate Symbol */
 	ND_PRINT("%s ", tp);       /* frame type */
 	ND_PRINT("%d ", origlen);  /* frame capture length */
 	
-	print_radio_duration(origlen);  /* wlan_radio.duration */
+	print_radio_duration(ndo, origlen);  /* wlan_radio.duration */
 
 	ND_PRINT("! ");            /* Indicate Symbol */
 }
@@ -2359,7 +2359,7 @@ ieee802_11_print(netdissect_options *ndo,
 	dst.addr_string = mac48_string;
 	switch (FC_TYPE(fc)) {
 	case T_MGMT:
-		print_more_info("Mgmt", orig_caplen);
+		print_more_info(ndo, "Mgmt", orig_caplen);
 		get_mgmt_src_dst_mac(p - hdrlen, &src.addr, &dst.addr);
 		if (!mgmt_body_print(ndo, fc, src.addr, p, length)) {
 			nd_print_trunc(ndo);
@@ -2367,7 +2367,7 @@ ieee802_11_print(netdissect_options *ndo,
 		}
 		break;
 	case T_CTRL:
-		print_more_info("Ctrl", orig_caplen);
+		print_more_info(ndo, "Ctrl", orig_caplen);
 		if (!ctrl_body_print(ndo, fc, p - hdrlen)) {
 			nd_print_trunc(ndo);
 			return hdrlen;
@@ -2377,8 +2377,8 @@ ieee802_11_print(netdissect_options *ndo,
 		if (DATA_FRAME_IS_NULL(FC_SUBTYPE(fc)))
 			return hdrlen;	/* no-data frame */
 		/* There may be a problem w/ AP not having this bit set */
+		print_more_info(ndo, "Data", orig_caplen);
 		if (FC_PROTECTED(fc)) {
-			print_more_info("Data", orig_caplen);
 			if (!wep_print(ndo, p)) {
 				nd_print_trunc(ndo);
 				return hdrlen;
