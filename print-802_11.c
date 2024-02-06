@@ -2610,157 +2610,163 @@ struct ieee80211_radiotap_header {
 					 */
 };
 
-/* Name                                 Data type       Units
- * ----                                 ---------       -----
+/* Name                                 Data type    Units
+ * ----                                 ---------    -----
  *
- * IEEE80211_RADIOTAP_TSFT              uint64_t       microseconds
+ * IEEE80211_RADIOTAP_TSFT              __le64       microseconds
  *
  *      Value in microseconds of the MAC's 64-bit 802.11 Time
  *      Synchronization Function timer when the first bit of the
  *      MPDU arrived at the MAC. For received frames, only.
  *
- * IEEE80211_RADIOTAP_CHANNEL           2 x uint16_t   MHz, bitmap
+ * IEEE80211_RADIOTAP_CHANNEL           2 x guint16   MHz, bitmap
  *
  *      Tx/Rx frequency in MHz, followed by flags (see below).
- *	Note that IEEE80211_RADIOTAP_XCHANNEL must be used to
- *	represent an HT channel as there is not enough room in
- *	the flags word.
  *
- * IEEE80211_RADIOTAP_FHSS              uint16_t       see below
+ * IEEE80211_RADIOTAP_FHSS              guint16       see below
  *
  *      For frequency-hopping radios, the hop set (first byte)
  *      and pattern (second byte).
  *
- * IEEE80211_RADIOTAP_RATE              uint8_t        500kb/s or index
+ * IEEE80211_RADIOTAP_RATE              u8           500kb/s
  *
- *      Tx/Rx data rate.  If bit 0x80 is set then it represents an
- *	an MCS index and not an IEEE rate.
+ *      Tx/Rx data rate
  *
- * IEEE80211_RADIOTAP_DBM_ANTSIGNAL     int8_t         decibels from
- *                                                     one milliwatt (dBm)
+ * IEEE80211_RADIOTAP_DBM_ANTSIGNAL     s8           decibels from
+ *                                                   one milliwatt (dBm)
  *
  *      RF signal power at the antenna, decibel difference from
  *      one milliwatt.
  *
- * IEEE80211_RADIOTAP_DBM_ANTNOISE      int8_t         decibels from
- *                                                     one milliwatt (dBm)
+ * IEEE80211_RADIOTAP_DBM_ANTNOISE      s8           decibels from
+ *                                                   one milliwatt (dBm)
  *
  *      RF noise power at the antenna, decibel difference from one
  *      milliwatt.
  *
- * IEEE80211_RADIOTAP_DB_ANTSIGNAL      uint8_t        decibel (dB)
+ * IEEE80211_RADIOTAP_DB_ANTSIGNAL      u8           decibel (dB)
  *
  *      RF signal power at the antenna, decibel difference from an
  *      arbitrary, fixed reference.
  *
- * IEEE80211_RADIOTAP_DB_ANTNOISE       uint8_t        decibel (dB)
+ * IEEE80211_RADIOTAP_DB_ANTNOISE       u8           decibel (dB)
  *
  *      RF noise power at the antenna, decibel difference from an
  *      arbitrary, fixed reference point.
  *
- * IEEE80211_RADIOTAP_LOCK_QUALITY      uint16_t       unitless
+ * IEEE80211_RADIOTAP_LOCK_QUALITY      guint16       unitless
  *
  *      Quality of Barker code lock. Unitless. Monotonically
  *      nondecreasing with "better" lock strength. Called "Signal
  *      Quality" in datasheets.  (Is there a standard way to measure
  *      this?)
  *
- * IEEE80211_RADIOTAP_TX_ATTENUATION    uint16_t       unitless
+ * IEEE80211_RADIOTAP_TX_ATTENUATION    guint16       unitless
  *
  *      Transmit power expressed as unitless distance from max
  *      power set at factory calibration.  0 is max power.
  *      Monotonically nondecreasing with lower power levels.
  *
- * IEEE80211_RADIOTAP_DB_TX_ATTENUATION uint16_t       decibels (dB)
+ * IEEE80211_RADIOTAP_DB_TX_ATTENUATION guint16       decibels (dB)
  *
  *      Transmit power expressed as decibel distance from max power
  *      set at factory calibration.  0 is max power.  Monotonically
  *      nondecreasing with lower power levels.
  *
- * IEEE80211_RADIOTAP_DBM_TX_POWER      int8_t         decibels from
- *                                                     one milliwatt (dBm)
+ * IEEE80211_RADIOTAP_DBM_TX_POWER      s8           decibels from
+ *                                                   one milliwatt (dBm)
  *
  *      Transmit power expressed as dBm (decibels from a 1 milliwatt
  *      reference). This is the absolute power level measured at
  *      the antenna port.
  *
- * IEEE80211_RADIOTAP_FLAGS             uint8_t        bitmap
+ * IEEE80211_RADIOTAP_FLAGS             u8           bitmap
  *
  *      Properties of transmitted and received frames. See flags
  *      defined below.
  *
- * IEEE80211_RADIOTAP_ANTENNA           uint8_t        antenna index
+ * IEEE80211_RADIOTAP_ANTENNA           u8           antenna index
  *
  *      Unitless indication of the Rx/Tx antenna for this packet.
  *      The first antenna is antenna 0.
  *
- * IEEE80211_RADIOTAP_RX_FLAGS          uint16_t       bitmap
+ * IEEE80211_RADIOTAP_RX_FLAGS          guint16       bitmap
  *
  *     Properties of received frames. See flags defined below.
  *
- * IEEE80211_RADIOTAP_XCHANNEL          uint32_t       bitmap
- *					uint16_t       MHz
- *					uint8_t        channel number
- *					uint8_t        .5 dBm
+ * IEEE80211_RADIOTAP_TX_FLAGS          guint16       bitmap
  *
- *	Extended channel specification: flags (see below) followed by
- *	frequency in MHz, the corresponding IEEE channel number, and
- *	finally the maximum regulatory transmit power cap in .5 dBm
- *	units.  This property supersedes IEEE80211_RADIOTAP_CHANNEL
- *	and only one of the two should be present.
+ *     Properties of transmitted frames. See flags defined below.
  *
- * IEEE80211_RADIOTAP_MCS		uint8_t        known
- *					uint8_t        flags
- *					uint8_t        mcs
+ * IEEE80211_RADIOTAP_RTS_RETRIES       u8           data
  *
- *	Bitset indicating which fields have known values, followed
- *	by bitset of flag values, followed by the MCS rate index as
- *	in IEEE 802.11n.
+ *     Number of rts retries a transmitted frame used.
  *
+ * IEEE80211_RADIOTAP_DATA_RETRIES      u8           data
  *
- * IEEE80211_RADIOTAP_AMPDU_STATUS	u32, u16, u8, u8	unitless
+ *     Number of unicast retries a transmitted frame used.
+ *
+ * IEEE80211_RADIOTAP_MCS	u8, u8, u8		unitless
+ *
+ *     Contains a bitmap of known fields/flags, the flags, and
+ *     the MCS index.
+ *
+ * IEEE80211_RADIOTAP_AMPDU_STATUS	u32, u16, u8, u8	unitlesss
  *
  *	Contains the AMPDU information for the subframe.
  *
- * IEEE80211_RADIOTAP_VHT	u16, u8, u8, u8[4], u8, u8, u16
+ * IEEE80211_RADIOTAP_HE		u16, u16, u16, u16, u16, u16 unitless
+ *	Contains some information for HE frames.
  *
- *	Contains VHT information about this frame.
+ * IEEE80211_RADIOTAP_HE_MU		U16, U16, u8[4] unitless
  *
- * IEEE80211_RADIOTAP_VENDOR_NAMESPACE
- *					uint8_t  OUI[3]
- *                                      uint8_t        subspace
- *                                      uint16_t       length
+ * IEEE80211_RADIOTAP_HE_MU_USER
  *
- *     The Vendor Namespace Field contains three sub-fields. The first
- *     sub-field is 3 bytes long. It contains the vendor's IEEE 802
- *     Organizationally Unique Identifier (OUI). The fourth byte is a
- *     vendor-specific "namespace selector."
+ * IEEE80211_RADIOTAP_0_LENGTH_PSDU
+ *
+ * IEEE80211_RADIOTAP_L_SIG
+ *
+ * IEEE80211_RADIOTAP_TLVS_PRESENT
+ *
+ * THERE ARE NO MORE BITS FREE! If you need a new radiotap header you must
+ * ask for a TLV value. See www.radiotap.org.
  *
  */
 enum ieee80211_radiotap_type {
-	IEEE80211_RADIOTAP_TSFT = 0,
-	IEEE80211_RADIOTAP_FLAGS = 1,
-	IEEE80211_RADIOTAP_RATE = 2,
-	IEEE80211_RADIOTAP_CHANNEL = 3,
-	IEEE80211_RADIOTAP_FHSS = 4,
-	IEEE80211_RADIOTAP_DBM_ANTSIGNAL = 5,
-	IEEE80211_RADIOTAP_DBM_ANTNOISE = 6,
-	IEEE80211_RADIOTAP_LOCK_QUALITY = 7,
-	IEEE80211_RADIOTAP_TX_ATTENUATION = 8,
+	IEEE80211_RADIOTAP_TSFT              = 0,
+	IEEE80211_RADIOTAP_FLAGS             = 1,
+	IEEE80211_RADIOTAP_RATE              = 2,
+	IEEE80211_RADIOTAP_CHANNEL           = 3,
+	IEEE80211_RADIOTAP_FHSS              = 4,
+	IEEE80211_RADIOTAP_DBM_ANTSIGNAL     = 5,
+	IEEE80211_RADIOTAP_DBM_ANTNOISE      = 6,
+	IEEE80211_RADIOTAP_LOCK_QUALITY      = 7,
+	IEEE80211_RADIOTAP_TX_ATTENUATION    = 8,
 	IEEE80211_RADIOTAP_DB_TX_ATTENUATION = 9,
-	IEEE80211_RADIOTAP_DBM_TX_POWER = 10,
-	IEEE80211_RADIOTAP_ANTENNA = 11,
-	IEEE80211_RADIOTAP_DB_ANTSIGNAL = 12,
-	IEEE80211_RADIOTAP_DB_ANTNOISE = 13,
-	IEEE80211_RADIOTAP_RX_FLAGS = 14,
-	/* NB: gap for netbsd definitions */
-	IEEE80211_RADIOTAP_XCHANNEL = 18,
-	IEEE80211_RADIOTAP_MCS = 19,
-	IEEE80211_RADIOTAP_AMPDU_STATUS = 20,
-	IEEE80211_RADIOTAP_VHT = 21,
-	IEEE80211_RADIOTAP_NAMESPACE = 29,
-	IEEE80211_RADIOTAP_VENDOR_NAMESPACE = 30,
-	IEEE80211_RADIOTAP_EXT = 31
+	IEEE80211_RADIOTAP_DBM_TX_POWER      = 10,
+	IEEE80211_RADIOTAP_ANTENNA           = 11,
+	IEEE80211_RADIOTAP_DB_ANTSIGNAL      = 12,
+	IEEE80211_RADIOTAP_DB_ANTNOISE       = 13,
+	IEEE80211_RADIOTAP_RX_FLAGS          = 14,
+	IEEE80211_RADIOTAP_TX_FLAGS          = 15,
+	IEEE80211_RADIOTAP_RTS_RETRIES       = 16,
+	IEEE80211_RADIOTAP_DATA_RETRIES      = 17,
+	IEEE80211_RADIOTAP_XCHANNEL          = 18,   /* Unofficial, used by FreeBSD */
+	IEEE80211_RADIOTAP_MCS               = 19,
+	IEEE80211_RADIOTAP_AMPDU_STATUS      = 20,
+	IEEE80211_RADIOTAP_VHT               = 21,
+	IEEE80211_RADIOTAP_TIMESTAMP         = 22,
+	IEEE80211_RADIOTAP_HE                = 23,
+	IEEE80211_RADIOTAP_HE_MU             = 24,
+	IEEE80211_RAFIOTAP_HE_MU_USER        = 25,
+	IEEE80211_RADIOTAP_0_LENGTH_PSDU     = 26,
+	IEEE80211_RADIOTAP_L_SIG             = 27,
+	IEEE80211_RADIOTAP_TLVS              = 28,
+
+	/* valid in every it_present bitmap, even vendor namespaces */
+	IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE = 29,
+	IEEE80211_RADIOTAP_VENDOR_NAMESPACE   = 30,
+	IEEE80211_RADIOTAP_EXT                = 31
 };
 
 /* channel attributes */
