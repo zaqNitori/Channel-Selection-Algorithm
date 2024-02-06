@@ -3408,7 +3408,14 @@ print_radiotap_field(netdissect_options *ndo,
 		}
 		break;
 		}
-
+	case IEEE80211_RADIOTAP_TIMESTAMP: {
+		// ND_PRINT(" Get Radiotap Timestamp!!! ");
+		break;
+	}
+	case IEEE80211_RADIOTAP_HE: {
+		ND_PRINT(" Get Radiotap HE Information!!! ");
+		break;
+	}
 	default:
 		/* this bit indicates a field whose
 		 * size we do not know, so we cannot
@@ -3458,7 +3465,7 @@ print_in_radiotap_namespace(netdissect_options *ndo,
 		 * Stop if this is one of the "same meaning
 		 * in all presence flags" bits.
 		 */
-		if (bitno >= IEEE80211_RADIOTAP_NAMESPACE)
+		if (bitno >= IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE)
 			break;
 
 		/*
@@ -3592,7 +3599,7 @@ ieee802_11_radio_print(netdissect_options *ndo,
 		 * the extension bit in all but the last word above.
 		 */
 		switch (presentflags &
-		    (BIT(IEEE80211_RADIOTAP_NAMESPACE)|BIT(IEEE80211_RADIOTAP_VENDOR_NAMESPACE))) {
+		    (BIT(IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE)|BIT(IEEE80211_RADIOTAP_VENDOR_NAMESPACE))) {
 
 		case 0:
 			/*
@@ -3603,7 +3610,7 @@ ieee802_11_radio_print(netdissect_options *ndo,
 			bit0 += 32;
 			break;
 
-		case BIT(IEEE80211_RADIOTAP_NAMESPACE):
+		case BIT(IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE):
 			/*
 			 * We're switching to the radiotap namespace.
 			 * Reset the presence-bitmap index to 0, and
