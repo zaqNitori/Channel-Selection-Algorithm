@@ -3424,7 +3424,37 @@ print_radiotap_field(netdissect_options *ndo,
 		break;
 	}
 	case IEEE80211_RADIOTAP_HE: {
-		ND_PRINT(" Get Radiotap HE Information!!! ");
+		// ND_PRINT(" Get Radiotap HE Information!!! ");
+
+		/* HE Data 1 */
+		rc = nd_cpack_uint16(ndo, s, &tsft);
+		if (rc != 0)
+			goto trunc;
+
+		/* HE Data 2 */
+		rc = nd_cpack_uint16(ndo, s, &tsft);
+		if (rc != 0)
+			goto trunc;
+
+		/* HE Data 3 */
+		rc = nd_cpack_uint16(ndo, s, &tsft);
+		if (rc != 0)
+			goto trunc;
+
+		/* HE Data 4 */
+		rc = nd_cpack_uint16(ndo, s, &tsft);
+		if (rc != 0)
+			goto trunc;
+
+		/* HE Data 5 */
+		rc = nd_cpack_uint16(ndo, s, &tsft);
+		if (rc != 0)
+			goto trunc;
+
+		/* HE Data 6 */
+		rc = nd_cpack_uint16(ndo, s, &tsft);
+		if (rc != 0)
+			goto trunc;
 
 		break;
 	}
