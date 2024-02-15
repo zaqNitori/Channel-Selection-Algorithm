@@ -836,6 +836,80 @@ static const float ieee80211_float_htrates[MAX_MCS_INDEX+1][2][2] = {
 	},
 };
 
+/* For IEEE80211_RADIOTAP_HE Data 1 */
+#define IEEE80211_RADIOTAP_HE_PPDU_FORMAT_MASK			0x0003
+#define IEEE80211_RADIOTAP_HE_PPDU_FORMAT_HE_SU			0
+#define IEEE80211_RADIOTAP_HE_PPDU_FORMAT_HE_EXT_SU		1
+#define IEEE80211_RADIOTAP_HE_PPDU_FORMAT_HE_MU			2
+#define IEEE80211_RADIOTAP_HE_PPDU_FORMAT_HE_TRIG		3
+#define IEEE80211_RADIOTAP_HE_BSS_COLOR_KNOWN			0x0004
+#define IEEE80211_RADIOTAP_HE_BEAM_CHANGE_KNOWN			0x0008
+#define IEEE80211_RADIOTAP_HE_UL_DL_KNOWN			0x0010
+#define IEEE80211_RADIOTAP_HE_DATA_MCS_KNOWN			0x0020
+#define IEEE80211_RADIOTAP_HE_DATA_DCM_KNOWN			0x0040
+#define IEEE80211_RADIOTAP_HE_CODING_KNOWN			0x0080
+#define IEEE80211_RADIOTAP_HE_LDPC_EXTRA_SYMBOL_SEGMENT_KNOWN	0x0100
+#define IEEE80211_RADIOTAP_HE_STBC_KNOWN			0x0200
+#define IEEE80211_RADIOTAP_HE_SPATIAL_REUSE_KNOWN		0x0400
+#define IEEE80211_RADIOTAP_HE_SPATIAL_REUSE_2_KNOWN		0x0800
+#define IEEE80211_RADIOTAP_HE_SPATIAL_REUSE_3_KNOWN		0x1000
+#define IEEE80211_RADIOTAP_HE_SPATIAL_REUSE_4_KNOWN		0x2000
+#define IEEE80211_RADIOTAP_HE_DATA_BW_RU_ALLOCATION_KNOWN	0x4000
+#define IEEE80211_RADIOTAP_HE_DOPPLER_KNOWN			0x8000
+
+/* For IEEE80211_RADIOTAP_HE Data 2 */
+#define IEEE80211_RADIOTAP_HE_PRI_SEC_80_MHZ_KNOWN		0x0001
+#define IEEE80211_RADIOTAP_HE_GI_KNOWN				0x0002
+#define IEEE80211_RADIOTAP_HE_NUM_LTF_SYMBOLS_KNOWN		0x0004
+#define IEEE80211_RADIOTAP_HE_PRE_FEC_PADDING_FACTOR_KNOWN	0x0008
+#define IEEE80211_RADIOTAP_HE_TXBF_KNOWN			0x0010
+#define IEEE80211_RADIOTAP_HE_PE_DISAMBIGUITY_KNOWN		0x0020
+#define IEEE80211_RADIOTAP_HE_TXOP_KNOWN			0x0040
+#define IEEE80211_RADIOTAP_HE_MIDAMBLE_PERIODICITY_KNOWN	0x0080
+#define IEEE80211_RADIOTAP_HE_RU_ALLOCATION_OFFSET		0x3F00
+#define IEEE80211_RADIOTAP_HE_RU_ALLOCATION_OFFSET_KNOWN	0x4000
+#define IEEE80211_RADIOTAP_HE_PRI_SEC_80_MHZ			0x8000
+
+/* For IEEE80211_RADIOTAP_HE Data 3 */
+#define IEEE80211_RADIOTAP_HE_BSS_COLOR_MASK			0x003F
+#define IEEE80211_RADIOTAP_HE_BEAM_CHANGE			0x0040
+#define IEEE80211_RADIOTAP_HE_UL_DL				0x0080
+#define IEEE80211_RADIOTAP_HE_DATA_MCS_MASK			0x0F00
+#define IEEE80211_RADIOTAP_HE_DATA_DCM				0x1000
+#define IEEE80211_RADIOTAP_HE_CODING				0x2000
+#define IEEE80211_RADIOTAP_HE_LDPC_EXTRA_SYMBOL_SEGMENT		0x4000
+#define IEEE80211_RADIOTAP_HE_STBC				0x8000
+
+/* HE_SU and HE_EXT_SU formap PPDU */
+#define IEEE80211_RADIOTAP_HE_SPATIAL_REUSE_MASK		0x000F
+#define IEEE80211_RADIOTAP_HE_D4_FFF0				0xFFF0
+/* HE_TRIG format PPDU */
+#define IEEE80211_RADIOTAP_HE_SPATIAL_REUSE_1_MASK		0X000F
+#define IEEE80211_RADIOTAP_HE_SPATIAL_REUSE_2_MASK		0X00F0
+#define IEEE80211_RADIOTAP_HE_SPATIAL_REUSE_3_MASK		0X0F00
+#define IEEE80211_RADIOTAP_HE_SPATIAL_REUSE_4_MASK		0XF000
+/* HE_MU format PPDU-also uses SPATIAL_REUSE_MASK from above */
+#define IEEE80211_RADIOTAP_HE_STA_ID_MASK			0x7FF0
+#define IEEE80211_RADIOTAP_HE_RESERVED_D4_B15			0x8000
+
+#define IEEE80211_RADIOTAP_HE_DATA_BANDWIDTH_RU_ALLOC_MASK	0x000F
+#define IEEE80211_RADIOTAP_HE_GI_MASK				0x0030
+#define IEEE80211_RADIOTAP_HE_GI_0_POINT_8_MICRO		0
+#define IEEE80211_RADIOTAP_HE_GI_1_POINT_6_MICRO		1
+#define IEEE80211_RADIOTAP_HE_GI_3_POINT_2_MICRO		2
+#define IEEE80211_RADIOTAP_HE_GI_RESERVED			3
+#define IEEE80211_RADIOTAP_HE_LTF_SYMBOL_SIZE			0x00C0
+#define IEEE80211_RADIOTAP_HE_NUM_LTF_SYMBOLS_MASK		0x0700
+#define IEEE80211_RADIOTAP_HE_RESERVED_D5_B11			0x0800
+#define IEEE80211_RADIOTAP_HE_PRE_FEC_PADDING_FACTOR_MASK	0x3000
+#define IEEE80211_RADIOTAP_HE_TXBF				0x4000
+#define IEEE80211_RADIOTAP_HE_PE_DISAMBIGUITY			0x8000
+#define IEEE80211_RADIOTAP_HE_NSTS_MASK				0x000F
+#define IEEE80211_RADIOTAP_HE_DOPLER_VALUE			0x0010
+#define IEEE80211_RADIOTAP_HE_RESERVED_D6_00E0			0x00E0
+#define IEEE80211_RADIOTAP_HE_TXOP_VALUE_MASK			0x7F00
+#define IEEE80211_RADIOTAP_HE_MIDAMBLE_PERIODICITY		0x8000
+
 /*
  * HE SU OFDM MCS rate table converted from http://mcsindex.com/
  * indexed by (NSTS,MCS,BW,GI)
@@ -2380,7 +2454,7 @@ ieee_802_11_hdr_print(netdissect_options *ndo,
 	}
 }
 
-static uint8_t dt_rate;  /* store Data Rate from radiotap */
+static float dt_rate;  /* store Data Rate from radiotap */
 
 static void print_radio_duration(netdissect_options *ndo, u_int origlen)
 {
@@ -3429,6 +3503,16 @@ print_radiotap_field(netdissect_options *ndo,
 	case IEEE80211_RADIOTAP_HE: {
 		// ND_PRINT(" Get Radiotap HE Information!!! ");
 
+		uint8_t data_mcs_known = 0;
+		uint8_t data_bw_known  = 0;
+		uint8_t gi_known       = 0;
+		uint8_t nsts_known     = 0;
+
+		uint8_t data_mcs = 0;
+		uint8_t data_bw  = 0;
+		uint8_t gi       = 0;
+		uint8_t nsts     = 0;
+
 		uint16_t data1;
 		uint16_t data2;
 		uint16_t data3;
@@ -3441,30 +3525,65 @@ print_radiotap_field(netdissect_options *ndo,
 		if (rc != 0)
 			goto trunc;
 
+		/* Determine what is known */
+		if(data1 & IEEE80211_RADIOTAP_HE_DATA_MCS_KNOWN)
+			data_mcs_known = 1;
+		if(data1 & IEEE80211_RADIOTAP_HE_DATA_BW_RU_ALLOCATION_KNOWN)
+			data_bw_known = 1;
+
 		/* HE Data 2 */
 		rc = nd_cpack_uint16(ndo, s, &data2);
 		if (rc != 0)
 			goto trunc;
 
-		/* HE Data 3 */
+		/* Determine what is known */
+		if(data2 & IEEE80211_RADIOTAP_HE_GI_KNOWN)
+			gi_known = 1;
+
+		/* If any of them is unknown then we cant get the bit rate */
+		if(!(data_mcs_known & data_bw_known & gi_known))
+			return 0;
+
+		/* 
+		 * HE Data 3 
+		 * Get MCS from this byte
+		 */
 		rc = nd_cpack_uint16(ndo, s, &data3);
 		if (rc != 0)
 			goto trunc;
 
-		/* HE Data 4 */
+		data_mcs = (data3 & IEEE80211_RADIOTAP_HE_DATA_MCS_MASK) >> 8;
+
+		/* 
+		 * HE Data 4
+		 * not handle this byte
+		 */
 		rc = nd_cpack_uint16(ndo, s, &data4);
 		if (rc != 0)
 			goto trunc;
 
-		/* HE Data 5 */
+		/* 
+		 * HE Data 5 
+		 * Get data BW and GI from this byte
+		 */
 		rc = nd_cpack_uint16(ndo, s, &data5);
 		if (rc != 0)
 			goto trunc;
 
-		/* HE Data 6 */
+		data_bw = (data5 & IEEE80211_RADIOTAP_HE_DATA_BANDWIDTH_RU_ALLOC_MASK);
+		gi = (data5 & IEEE80211_RADIOTAP_HE_GI_MASK) >> 4;
+
+		/* 
+		 * HE Data 6
+		 * Get streams from this byte
+		 */
 		rc = nd_cpack_uint16(ndo, s, &data6);
 		if (rc != 0)
 			goto trunc;
+
+		nsts = (data6 & IEEE80211_RADIOTAP_HE_NSTS_MASK);
+
+		dt_rate = he_ofdm_tab[nsts][data_mcs][data_bw][gi];
 
 		break;
 	}
