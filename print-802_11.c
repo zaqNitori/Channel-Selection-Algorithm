@@ -3413,9 +3413,13 @@ print_radiotap_field(netdissect_options *ndo,
 		
 		/* Extract timestamp */
 		rc = nd_cpack_uint64(ndo, s, &tsft); 
+		if (rc != 0)
+			goto trunc;
 
 		/* Extract other flags */
 		rc = nd_cpack_uint32(ndo, s, &tsft);
+		if (rc != 0)
+			goto trunc;
 
 		break;
 	}
