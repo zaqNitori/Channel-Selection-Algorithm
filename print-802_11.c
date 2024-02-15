@@ -3410,14 +3410,17 @@ print_radiotap_field(netdissect_options *ndo,
 		}
 	case IEEE80211_RADIOTAP_TIMESTAMP: {
 		// ND_PRINT(" Get Radiotap Timestamp!!! ");
-		
+
+		uint64_t tsft;
+		uint32_t unit;
+
 		/* Extract timestamp */
 		rc = nd_cpack_uint64(ndo, s, &tsft); 
 		if (rc != 0)
 			goto trunc;
 
-		/* Extract other flags */
-		rc = nd_cpack_uint32(ndo, s, &tsft);
+		/* Extract other units */
+		rc = nd_cpack_uint32(ndo, s, &unit);
 		if (rc != 0)
 			goto trunc;
 
@@ -3426,33 +3429,40 @@ print_radiotap_field(netdissect_options *ndo,
 	case IEEE80211_RADIOTAP_HE: {
 		// ND_PRINT(" Get Radiotap HE Information!!! ");
 
+		uint16_t data1;
+		uint16_t data2;
+		uint16_t data3;
+		uint16_t data4;
+		uint16_t data5;
+		uint16_t data6;
+
 		/* HE Data 1 */
-		rc = nd_cpack_uint16(ndo, s, &tsft);
+		rc = nd_cpack_uint16(ndo, s, &data1);
 		if (rc != 0)
 			goto trunc;
 
 		/* HE Data 2 */
-		rc = nd_cpack_uint16(ndo, s, &tsft);
+		rc = nd_cpack_uint16(ndo, s, &data2);
 		if (rc != 0)
 			goto trunc;
 
 		/* HE Data 3 */
-		rc = nd_cpack_uint16(ndo, s, &tsft);
+		rc = nd_cpack_uint16(ndo, s, &data3);
 		if (rc != 0)
 			goto trunc;
 
 		/* HE Data 4 */
-		rc = nd_cpack_uint16(ndo, s, &tsft);
+		rc = nd_cpack_uint16(ndo, s, &data4);
 		if (rc != 0)
 			goto trunc;
 
 		/* HE Data 5 */
-		rc = nd_cpack_uint16(ndo, s, &tsft);
+		rc = nd_cpack_uint16(ndo, s, &data5);
 		if (rc != 0)
 			goto trunc;
 
 		/* HE Data 6 */
-		rc = nd_cpack_uint16(ndo, s, &tsft);
+		rc = nd_cpack_uint16(ndo, s, &data6);
 		if (rc != 0)
 			goto trunc;
 
