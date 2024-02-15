@@ -2454,7 +2454,8 @@ ieee_802_11_hdr_print(netdissect_options *ndo,
 	}
 }
 
-static float dt_rate;  /* store Data Rate from radiotap */
+static uint8_t has_rate;  /* check if we get bit rate */
+static float dt_rate;     /* store Data Rate from radiotap */
 
 static void print_radio_duration(netdissect_options *ndo, u_int origlen)
 {
@@ -2476,7 +2477,8 @@ static void print_more_info(netdissect_options *ndo, char* tp, u_int origlen)
 	ND_PRINT("%s ", tp);       /* frame type */
 	ND_PRINT("%d ", origlen);  /* frame capture length */
 	
-	print_radio_duration(ndo, origlen);  /* wlan_radio.duration */
+	if(has_rate == 1)
+		print_radio_duration(ndo, origlen);  /* wlan_radio.duration */
 
 	ND_PRINT("! ");            /* Indicate Symbol */
 }
@@ -3115,6 +3117,7 @@ print_radiotap_field(netdissect_options *ndo,
 			 */
 			ND_PRINT("MCS %u ", rate & 0x7f);
 		} else
+			has_rate = 1;
 			dt_rate = rate;
 			ND_PRINT("%2.1f Mb/s ", .5 * rate);
 		break;
@@ -3583,13 +3586,14 @@ print_radiotap_field(netdissect_options *ndo,
 
 		nsts = (data6 & IEEE80211_RADIOTAP_HE_NSTS_MASK);
 
+		has_rate = 1;
 		dt_rate = he_ofdm_tab[nsts - 1][data_mcs][data_bw][gi];
 
 		// ND_PRINT("MCS Index: %d ", data_mcs);
 		// ND_PRINT("BW Index: %d ", data_bw);
 		// ND_PRINT("GI Index: %d ", gi);
 		// ND_PRINT("NSTS Value: %d ", nsts);
-		// ND_PRINT("Bit Rate: %.1f ", dt_rate);
+		ND_PRINT("Bit Rate: %.1f ", dt_rate);
 
 		break;
 	}
@@ -3734,6 +3738,13 @@ ieee802_11_radio_print(netdissect_options *ndo,
 	pad = 0;
 	/* Assume no FCS at end of frame */
 	fcslen = 0;
+
+	/*
+	 * Check if there aren't any error bit before HE Info
+	 * function print_in_radiotap_namespace will be call many times if there's many present flags in radiotap header
+	 */
+	has_rate = 0;
+
 	for (presentp = &hdr->it_present; presentp <= last_presentp;
 	    presentp++) {
 		presentflags = GET_LE_U_4(presentp);
