@@ -3410,10 +3410,18 @@ print_radiotap_field(netdissect_options *ndo,
 		}
 	case IEEE80211_RADIOTAP_TIMESTAMP: {
 		// ND_PRINT(" Get Radiotap Timestamp!!! ");
+		
+		/* Extract timestamp */
+		rc = nd_cpack_uint64(ndo, s, &tsft); 
+
+		/* Extract other flags */
+		rc = nd_cpack_uint32(ndo, s, &tsft);
+
 		break;
 	}
 	case IEEE80211_RADIOTAP_HE: {
 		ND_PRINT(" Get Radiotap HE Information!!! ");
+
 		break;
 	}
 	default:
