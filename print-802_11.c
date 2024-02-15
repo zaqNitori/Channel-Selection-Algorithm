@@ -2463,7 +2463,7 @@ static void print_radio_duration(netdissect_options *ndo, u_int origlen)
 
 	if (dt_rate > 0)
 		// ND_PRINT("%.3f ", bits / (.5 * dt_rate));
-		ND_PRINT("%d ", 2 * bits / dt_rate);
+		ND_PRINT("%.1f ", 2 * bits / dt_rate);
 		/* the time unit of the duration is us(1e-6) */
 	else
 		ND_PRINT("%d ", 0);
@@ -3583,7 +3583,13 @@ print_radiotap_field(netdissect_options *ndo,
 
 		nsts = (data6 & IEEE80211_RADIOTAP_HE_NSTS_MASK);
 
-		dt_rate = he_ofdm_tab[nsts][data_mcs][data_bw][gi];
+		dt_rate = he_ofdm_tab[nsts - 1][data_mcs][data_bw][gi];
+
+		// ND_PRINT("MCS Index: %d ", data_mcs);
+		// ND_PRINT("BW Index: %d ", data_bw);
+		// ND_PRINT("GI Index: %d ", gi);
+		// ND_PRINT("NSTS Value: %d ", nsts);
+		// ND_PRINT("Bit Rate: %.1f ", dt_rate);
 
 		break;
 	}
