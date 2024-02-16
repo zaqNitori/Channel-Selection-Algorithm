@@ -2454,17 +2454,17 @@ ieee_802_11_hdr_print(netdissect_options *ndo,
 	}
 }
 
-static uint8_t has_rate;  /* check if we get bit rate */
-static float dt_rate;     /* store Data Rate from radiotap */
+static u_int radiotap_len;  /* length of radiotap header */
+static uint8_t has_rate;    /* check if we get bit rate */
+static float dt_rate;       /* store Data Rate from radiotap */
 
-static void print_radio_duration(netdissect_options *ndo, u_int origlen)
+static void print_radio_duration(netdissect_options *ndo, u_int len)
 {
-	/* IDK why should plus 16, but the src code from wireshark packet-ieee80211-radio.c do this */
-	u_int bits = 8 * origlen + 16;
+	u_int bits = 8 * len;
 
 	if (dt_rate > 0)
-		// ND_PRINT("%.3f ", bits / (.5 * dt_rate));
-		ND_PRINT("%.1f ", 2 * bits / dt_rate);
+		float duration = bits / dt_rate;
+		ND_PRINT("%.1f ", duration);
 		/* the time unit of the duration is us(1e-6) */
 	else
 		ND_PRINT("%d ", 0);
@@ -2473,12 +2473,13 @@ static void print_radio_duration(netdissect_options *ndo, u_int origlen)
 
 static void print_more_info(netdissect_options *ndo, char* tp, u_int origlen)
 {
+	u_int len = origlen - radiotap_len;
 	ND_PRINT(" !");            /* Indicate Symbol */
 	ND_PRINT("%s ", tp);       /* frame type */
-	ND_PRINT("%d ", origlen);  /* frame capture length */
+	ND_PRINT("%d ", len);  /* frame capture length */
 	
 	if(has_rate == 1)
-		print_radio_duration(ndo, origlen);  /* wlan_radio.duration */
+		print_radio_duration(ndo, len);  /* wlan_radio.duration */
 
 	ND_PRINT("! ");            /* Indicate Symbol */
 }
@@ -3744,6 +3745,11 @@ ieee802_11_radio_print(netdissect_options *ndo,
 	 * function print_in_radiotap_namespace will be call many times if there's many present flags in radiotap header
 	 */
 	has_rate = 0;
+	
+	/*
+	 * Get radiotap length to calculate wlan_radio.duration 
+	 */
+	radiotap_len = len;
 
 	for (presentp = &hdr->it_present; presentp <= last_presentp;
 	    presentp++) {
