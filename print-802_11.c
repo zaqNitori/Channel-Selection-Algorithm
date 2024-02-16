@@ -2465,7 +2465,6 @@ static u_int wlan_radio_ver;
 #define IEEE80211_AG	2
 #define IEEE80211_B		3
 
-static u_int radiotap_len;         /* length of radiotap header */
 static uint8_t is_short_preamble;  /* check if is short preamble for 802.11b */
 static uint8_t has_rate;           /* check if we get bit rate */
 static float dt_rate;              /* store Data Rate from radiotap */
@@ -2496,7 +2495,12 @@ static void print_radio_duration(netdissect_options *ndo, u_int len)
 	}
 
 	if (dt_rate > 0) {
-		float duration = bits / dt_rate + preamble;
+
+		/*
+		 * We still need to time 2, and IDK why
+		 * Check Wireshark Src packet-ieee80211-radio.c line 739 ~ 743
+		 */
+		float duration = 2 * bits / dt_rate + (float)(preamble);
 
 		/* the time unit of the duration is us(1e-6) */
 		ND_PRINT("%.1f ", duration);
@@ -2508,11 +2512,11 @@ static void print_radio_duration(netdissect_options *ndo, u_int len)
 
 static void print_more_info(netdissect_options *ndo, char* tp, u_int origlen)
 {
-	u_int len = origlen - radiotap_len; /* frame len without radiotap header */
+	u_int len = origlen;	/* frame len without radiotap header */
 
-	ND_PRINT(" !");            /* Indicate Symbol */
-	ND_PRINT("%s ", tp);       /* frame type */
-	ND_PRINT("%d ", len);  /* frame capture length */
+	ND_PRINT(" !");			/* Indicate Symbol */
+	ND_PRINT("%s ", tp);	/* frame type */
+	ND_PRINT("%d ", len);	/* frame capture length */
 	
 	if(has_rate == 1)
 		print_radio_duration(ndo, len);  /* wlan_radio.duration */
@@ -3792,11 +3796,6 @@ ieee802_11_radio_print(netdissect_options *ndo,
 		 * function print_in_radiotap_namespace will be call many times if there's many present flags in radiotap header
 		 */
 		has_rate = 0;
-
-		/*
-		 * Get radiotap header length to calculate wlan_radio.duration
-		 */
-		radiotap_len = len;
 
 		/*
 		 * Get ieee 80211 version
