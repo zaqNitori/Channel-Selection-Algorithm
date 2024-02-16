@@ -2454,18 +2454,53 @@ ieee_802_11_hdr_print(netdissect_options *ndo,
 	}
 }
 
-static u_int radiotap_len;  /* length of radiotap header */
-static uint8_t has_rate;    /* check if we get bit rate */
-static float dt_rate;       /* store Data Rate from radiotap */
+/*
+ * Version of 80211
+ * 1 => 802.11n
+ * 2 => 802.11a/g
+ * 3 => 802.11b
+ */
+static u_int wlan_radio_ver;
+#define IEEE80211_N		1
+#define IEEE80211_AG	2
+#define IEEE80211_B		3
+
+static u_int radiotap_len;         /* length of radiotap header */
+static uint8_t is_short_preamble;  /* check if is short preamble for 802.11b */
+static uint8_t has_rate;           /* check if we get bit rate */
+static float dt_rate;              /* store Data Rate from radiotap */
+
 
 static void print_radio_duration(netdissect_options *ndo, u_int len)
 {
 	u_int bits = 8 * len;
+	uint8_t preamble = 0;
 
-	if (dt_rate > 0)
-		float duration = bits / dt_rate;
-		ND_PRINT("%.1f ", duration);
+	/*
+	 * From ieee80211 version get relative preamble duration time
+	 * unit -> micro second (us)
+	 */
+	switch(wlan_radio_ver) {
+		case IEEE80211_N:
+			preamble = 40;
+			break;
+		case IEEE80211_AG:
+			preamble = 20;
+			break;
+		case IEEE80211_B:
+			preamble = (is_short_preamble)? 96 : 192;
+			break;
+		default:
+			preamble = 0;
+			break;
+	}
+
+	if (dt_rate > 0) {
+		float duration = bits / dt_rate + preamble;
+
 		/* the time unit of the duration is us(1e-6) */
+		ND_PRINT("%.1f ", duration);
+	}
 	else
 		ND_PRINT("%d ", 0);
 
@@ -2473,7 +2508,8 @@ static void print_radio_duration(netdissect_options *ndo, u_int len)
 
 static void print_more_info(netdissect_options *ndo, char* tp, u_int origlen)
 {
-	u_int len = origlen - radiotap_len;
+	u_int len = origlen - radiotap_len; /* frame len without radiotap header */
+
 	ND_PRINT(" !");            /* Indicate Symbol */
 	ND_PRINT("%s ", tp);       /* frame type */
 	ND_PRINT("%d ", len);  /* frame capture length */
@@ -2997,6 +3033,7 @@ print_chaninfo(netdissect_options *ndo,
 		 * of what the channel flags say.
 		 */
 		ND_PRINT(" 11n");
+		wlan_radio_ver = 1;
 	} else {
 		if (IS_CHAN_FHSS(flags))
 			ND_PRINT(" FHSS");
@@ -3007,6 +3044,7 @@ print_chaninfo(netdissect_options *ndo,
 				ND_PRINT(" 11a/5Mhz");
 			else
 				ND_PRINT(" 11a");
+			wlan_radio_ver = 2;
 		}
 		if (IS_CHAN_ANYG(flags)) {
 			if (flags & IEEE80211_CHAN_HALF)
@@ -3015,8 +3053,11 @@ print_chaninfo(netdissect_options *ndo,
 				ND_PRINT(" 11g/5Mhz");
 			else
 				ND_PRINT(" 11g");
-		} else if (IS_CHAN_B(flags))
+			wlan_radio_ver = 2;
+		} else if (IS_CHAN_B(flags)) {
 			ND_PRINT(" 11b");
+			wlan_radio_ver = 3;
+		}
 		if (flags & IEEE80211_CHAN_TURBO)
 			ND_PRINT(" Turbo");
 	}
@@ -3061,8 +3102,10 @@ print_radiotap_field(netdissect_options *ndo,
 		*flagsp = flagsval;
 		if (flagsval & IEEE80211_RADIOTAP_F_CFP)
 			ND_PRINT("cfp ");
-		if (flagsval & IEEE80211_RADIOTAP_F_SHORTPRE)
-			ND_PRINT("short preamble ");
+		if (flagsval & IEEE80211_RADIOTAP_F_SHORTPRE) {
+				ND_PRINT("short preamble ");
+				is_short_preamble = 1;
+			}
 		if (flagsval & IEEE80211_RADIOTAP_F_WEP)
 			ND_PRINT("wep ");
 		if (flagsval & IEEE80211_RADIOTAP_F_FRAG)
@@ -3741,15 +3784,28 @@ ieee802_11_radio_print(netdissect_options *ndo,
 	fcslen = 0;
 
 	/*
-	 * Check if there aren't any error bit before HE Info
-	 * function print_in_radiotap_namespace will be call many times if there's many present flags in radiotap header
+	 * Global Varaibles Initialize.
 	 */
-	has_rate = 0;
-	
-	/*
-	 * Get radiotap length to calculate wlan_radio.duration 
-	 */
-	radiotap_len = len;
+	{
+		/*
+		 * Check if there aren't any error bit before HE Info
+		 * function print_in_radiotap_namespace will be call many times if there's many present flags in radiotap header
+		 */
+		has_rate = 0;
+
+		/*
+		 * Get radiotap header length to calculate wlan_radio.duration
+		 */
+		radiotap_len = len;
+
+		/*
+		 * Get ieee 80211 version
+		 * and check if its short preamble
+		 */
+		wlan_radio_ver = 0;
+		is_short_preamble = 0;
+
+	}
 
 	for (presentp = &hdr->it_present; presentp <= last_presentp;
 	    presentp++) {
