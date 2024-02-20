@@ -44,6 +44,9 @@ function seperate_FrameInfo() {
         size[freq, chan, "Mgmt"] = info[6]
         size[freq, chan, "Ctrl"] = info[8]
         size[freq, chan, "Data"] = info[10]
+
+        # Store Usage
+        usage[freq, chan] = info[11]
     }
 }
 
@@ -51,7 +54,7 @@ function show() {
     cmd = "sort -n"
 
     # format the output
-    printf "Freq\tChannel\tEffect\tTotal_A\tTotal_S\tMgmt_A\tMgmt_S\tCtrl_A\tCtrl_S\tData_A\tData_S\n"
+    printf "Freq\tChannel\tEffect\tTotal_A\tTotal_S\tMgmt_A\tMgmt_S\tCtrl_A\tCtrl_S\tData_A\tData_S\Usage\n"
 
     for(tmp in freq2chan) {
         split(tmp, fc, SUBSEP)
@@ -72,10 +75,13 @@ function show() {
         cs = size[freq, chan, "Ctrl"]
         ds = size[freq, chan, "Data"]
 
+        # Store channel usage
+        ug = usage[freq, chan] 
+
         if(chan == "14") continue
 
         # show output in the ascending order
-        printf "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", freq, chan, eft, ta, ts, ma, ms, ca, cs, da, ds | cmd
+        printf "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", freq, chan, eft, ta, ts, ma, ms, ca, cs, da, ds, ug | cmd
     }
 
     close(cmd)
@@ -85,6 +91,7 @@ function show() {
 BEGIN {
     effect = ARGV[1]
     frame_info = ARGV[2]
+    interval = ARGV[3]
 
     seperate_Effect()
     seperate_FrameInfo()
