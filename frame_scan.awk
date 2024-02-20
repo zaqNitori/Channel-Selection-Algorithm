@@ -27,6 +27,7 @@ function Initial() {
         size[phy, chan, "Mgmt"] = 0
         size[phy, chan, "Ctrl"] = 0
         size[phy, chan, "Data"] = 0
+        duration[phy, chan] = 0
     }
     close(cmd)
 }
@@ -46,10 +47,12 @@ function Scan() {
         if(chan == 14) continue
 
         # Extract type and size
+        # awk starts from index 1
         split($0, tmp, "!")
         split(tmp[2], good)
         type = good[1]
         size = good[2]
+        dura = good[3]
 
         # Counting the frame amounts
         amount[phy, chan, "Total"]++
@@ -58,6 +61,9 @@ function Scan() {
         # Collecting the frame sizes
         size[phy, chan, "Total"] += size + 0
         size[phy, chan, type] += size + 0
+
+        # Collecting the duration
+        duration[phy, chan] += dura
     }
     close(cmd)
 }
@@ -83,7 +89,10 @@ function Show() {
         cs = size[phy, chan, "Ctrl"]
         ds = size[phy, chan, "Data"]
 
-        printf "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d!", freq, chan, ta, ts, ma, ms, ca, cs, da, ds
+        # Get duration
+        dura = duration[phy, chan]
+
+        printf "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d!", freq, chan, ta, ts, ma, ms, ca, cs, da, ds, dura
     }
 
 }
