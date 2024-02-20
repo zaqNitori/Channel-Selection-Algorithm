@@ -15,19 +15,19 @@ function Initial() {
     # Initial the array while reading the channel list
     while(cmd | getline) {
 
-        freq = $2
-        chan = extract($4)
-        freq2chan[phy, freq] = chan
-        chan2freq[phy, chan] = freq
+        freq                       = $2
+        chan                       = extract($4)
+        freq2chan[phy, freq]       = chan
+        chan2freq[phy, chan]       = freq
         amount[phy, chan, "Total"] = 0
-        amount[phy, chan, "Mgmt"] = 0
-        amount[phy, chan, "Ctrl"] = 0
-        amount[phy, chan, "Data"] = 0
-        size[phy, chan, "Total"] = 0
-        size[phy, chan, "Mgmt"] = 0
-        size[phy, chan, "Ctrl"] = 0
-        size[phy, chan, "Data"] = 0
-        duration[phy, chan] = 0
+        amount[phy, chan, "Mgmt"]  = 0
+        amount[phy, chan, "Ctrl"]  = 0
+        amount[phy, chan, "Data"]  = 0
+        size[phy, chan, "Total"]   = 0
+        size[phy, chan, "Mgmt"]    = 0
+        size[phy, chan, "Ctrl"]    = 0
+        size[phy, chan, "Data"]    = 0
+        duration[phy, chan]        = 0
     }
     close(cmd)
 }
@@ -89,17 +89,21 @@ function Show() {
         cs = size[phy, chan, "Ctrl"]
         ds = size[phy, chan, "Data"]
 
-        # Get duration
+        # Get duration and calculate usage
+        # Plus 0.5 to do rounding
         dura = duration[phy, chan]
+        usage = (dura * 100) / (1000000 * interval) + 0.5
 
-        printf "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d!", freq, chan, ta, ts, ma, ms, ca, cs, da, ds, dura
+        printf "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d!", freq, chan, ta, ts, ma, ms, ca, cs, da, ds, usage
     }
 
 }
 
 BEGIN {
-    phy=ARGV[1]
-    interface=ARGV[2]
+    phy       = ARGV[1]
+    interface = ARGV[2]
+    interval  = ARGV[3]
+
     Initial()
     Scan()
     Show()
