@@ -2472,41 +2472,60 @@ static float dt_rate;              /* store Data Rate from radiotap */
 
 static void print_radio_duration(netdissect_options *ndo, u_int len)
 {
-	u_int bits = 8 * len;
-	uint8_t preamble = 0;
+	u_int preamble = 0;
+	u_int duration;
+
+	if(has_rate != 1) {
+		ND_PRINT("%d ", 0);
+		return;
+	}
+
+	if(dt_rate <= 0) {
+		ND_PRINT("%d ", 0);
+		return;
+	}
 
 	/*
 	 * From ieee80211 version get relative preamble duration time
 	 * unit -> micro second (us)
+	 * Check wireshark src packet-ieee80211-radio.c line 1194 ~ 1345
 	 */
 	switch(wlan_radio_ver) {
 		case IEEE80211_N:
+		{
 			preamble = 40;
+			duration = (u_int) ceil(preamble + 8 * len / dt_rate);
 			break;
+		}
+
 		case IEEE80211_AG:
-			preamble = 20;
+		{
+			/* preamble + signal */
+			preamble = 16 + 4;
+
+			/* 16 service bits, data and 6 tail bits */
+			u_int bits = 16 + 8 * len + 6;
+			u_int symbols = (u_int) ceil(bits / (dt_rate * 4));
+
+			duration = preamble + symbols * 4;
 			break;
+		}
+
 		case IEEE80211_B:
-			preamble = (is_short_preamble)? 96 : 192;
+		{
+			preamble = (is_short_preamble)? 72 + 24 : 144 + 48;
+			duration = (u_int) ceil(preamble + len * 8 / dt_rate);
 			break;
+		}
+
 		default:
 			preamble = 0;
+			duration = (u_int) ceil(preamble + len * 8 / dt_rate);
 			break;
 	}
 
-	if (dt_rate > 0) {
-
-		/*
-		 * We still need to time 2, and IDK why
-		 * Check Wireshark Src packet-ieee80211-radio.c line 739 ~ 743
-		 */
-		float duration = 2 * bits / dt_rate + (float)(preamble);
-
-		/* the time unit of the duration is us(1e-6) */
-		ND_PRINT("%.1f ", duration);
-	}
-	else
-		ND_PRINT("%d ", 0);
+	/* the time unit of the duration is us(1e-6) */
+	ND_PRINT("%d ", duration);
 
 }
 
@@ -2518,8 +2537,7 @@ static void print_more_info(netdissect_options *ndo, char* tp, u_int origlen)
 	ND_PRINT("%s ", tp);	/* frame type */
 	ND_PRINT("%d ", len);	/* frame capture length */
 	
-	if(has_rate == 1)
-		print_radio_duration(ndo, len);  /* wlan_radio.duration */
+	print_radio_duration(ndo, len);  /* wlan_radio.duration */
 
 	ND_PRINT("! ");            /* Indicate Symbol */
 }
@@ -3166,7 +3184,7 @@ print_radiotap_field(netdissect_options *ndo,
 			ND_PRINT("MCS %u ", rate & 0x7f);
 		} else
 			has_rate = 1;
-			dt_rate = rate;
+			dt_rate = .5 * rate;
 			ND_PRINT("%2.1f Mb/s ", .5 * rate);
 		break;
 		}
@@ -3386,6 +3404,8 @@ print_radiotap_field(netdissect_options *ndo,
 				 * We have the rate.
 				 * Print it.
 				 */
+				has_rate = 1;
+				dt_rate = htrate;
 				ND_PRINT("%.1f Mb/s MCS %u ", htrate, mcs_index);
 			} else {
 				/*
