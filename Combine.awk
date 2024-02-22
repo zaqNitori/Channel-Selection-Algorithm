@@ -54,7 +54,7 @@ function show() {
     cmd = "sort -n"
 
     # format the output
-    printf "Freq\tChannel\tEffect\tTotal_A\tTotal_S\tMgmt_A\tMgmt_S\tCtrl_A\tCtrl_S\tData_A\tData_S\Usage\n"
+    printf "Freq\tChannel\tEffect\tTotal_A\tTotal_S\tMgmt_A\tMgmt_S\tCtrl_A\tCtrl_S\tData_A\tData_S\tUsage\n"
 
     for(tmp in freq2chan) {
         split(tmp, fc, SUBSEP)
