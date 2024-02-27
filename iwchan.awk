@@ -51,30 +51,60 @@ function get_iwconf() {
 }
  
 function get_iwscan() {
-	cmd = "iw dev "dev_conf" scan"
+	cmd = "iw dev "dev_conf" scan | grep -E 'freq:|signal:'"
+
+	cnt = 0
 	while(cmd | getline) {
-		if($0 ~ /^\s*BSS\s/)
-			bssid = gensub(/^\s*\w*\s*([:0-9a-f]+).*$/, "\\1", 1, $0)
-		else if($0 ~ /^\s*freq:/) {
-			freq = gensub(/^\s*\w*:\s*([0-9]+).*$/, "\\1", 1, $0)
-			iwscan[bssid, "freq"] = freq
+		
+		if((cnt % 2) == 0) {
+			freq = $2
+			load = iwphy[phy_conf, freq, "load"]
+
+			# Use % 100 to get the number of APs
+			load += 1
 		}
-		else if($0 ~ /^\s*signal:/) {
-			signal = gensub(/^\s*\w*:\s*([-.0-9]+).*$/, "\\1", 1, $0) + 0
-			iwscan[bssid, "signal"] = signal
-			if(signal < - 100) quality = 0
-			else if(signal < - 50) quality = 2 * (signal + 100)
-			else quality = 100
-			iwscan[bssid, "quality"] = quality
+		else {
+			signal = $2
+			# load represent the expect interference from surrounding APs
+			load += (signal + 100) * 100
+			iwphy[phy_conf, freq, "load"] = load
+			# printf "freq: %d\n", freq
+			# printf "signal: %d\n", signal
 		}
-		else if($0 ~ /^\s*SSID:/) {
-			ssid = gensub(/^\s*\w*:\s*(.*)$/, "\\1", 1, $0)
-			iwscan[bssid, "ssid"] = ssid
-		}
+
+		# can calculate avg signal by using following formula
+		# (load / 100) / (load % 100) => total signal / total APs
+		cnt += 1
 	}
 	close(cmd)
 }
- 
+
+# function get_iwscan() {
+	#cmd = "iw dev "dev_conf" scan"
+
+	# while(cmd | getline) {
+		# if($0 ~ /^\s*BSS\s/)
+		# 	bssid = gensub(/^\s*\w*\s*([:0-9a-f]+).*$/, "\\1", 1, $0)
+		# else if($0 ~ /^\s*freq:/) {
+		# 	freq = gensub(/^\s*\w*:\s*([0-9]+).*$/, "\\1", 1, $0)
+		# 	iwscan[bssid, "freq"] = freq
+		# }
+		# else if($0 ~ /^\s*signal:/) {
+		# 	signal = gensub(/^\s*\w*:\s*([-.0-9]+).*$/, "\\1", 1, $0) + 0
+		# 	iwscan[bssid, "signal"] = signal
+		# 	if(signal < - 100) quality = 0
+		# 	else if(signal < - 50) quality = 2 * (signal + 100)
+		# 	else quality = 100
+		# 	iwscan[bssid, "quality"] = quality
+		# }
+		# else if($0 ~ /^\s*SSID:/) {
+		# 	ssid = gensub(/^\s*\w*:\s*(.*)$/, "\\1", 1, $0)
+		# 	iwscan[bssid, "ssid"] = ssid
+		# }
+#  	}
+# 	close(cmd)
+# }
+
 function get_iwload() {
 	for(iwphy_subs in iwphy) {
 		split(iwphy_subs, iwphy_sub, SUBSEP)
@@ -206,8 +236,8 @@ BEGIN {
 		get_iwdev()
 		get_iwconf()
 		get_iwscan()
-		get_iwload()
-		get_iwstatus()
+		#get_iwload()
+		#get_iwstatus()
 		if(subcmd == "get") get_iwchan()
 		else if(subcmd == "show") {
 			#print_iwinfo()
