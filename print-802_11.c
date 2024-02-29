@@ -2625,10 +2625,10 @@ ieee802_11_print(netdissect_options *ndo,
 		}
 		break;
 	case T_DATA:
+		print_more_info(ndo, "Data", orig_caplen);
 		if (DATA_FRAME_IS_NULL(FC_SUBTYPE(fc)))
 			return hdrlen;	/* no-data frame */
 		/* There may be a problem w/ AP not having this bit set */
-		print_more_info(ndo, "Data", orig_caplen);
 		if (FC_PROTECTED(fc)) {
 			if (!wep_print(ndo, p)) {
 				nd_print_trunc(ndo);
