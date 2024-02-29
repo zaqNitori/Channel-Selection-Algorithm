@@ -17,10 +17,17 @@ function Get_Channel() {
     # Read the channel list and store it
     while(cmd | getline) {
 
+        tmp = extract($4)
+        # (tmp+0) => cast string to int
+        if(phy == "phy0" && (tmp+0) > 11)
+            continue
+        if(phy == "phy1" && (tmp+0) > 48)
+            continue
+
         if(chan == "")
-            chan = extract($4)
+            chan = tmp
         else
-            chan=chan" "extract($4)
+            chan=chan" "tmp
 
     }
     close(cmd)
