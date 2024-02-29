@@ -217,6 +217,11 @@ function my_output() {
 		chan = iwphy[phy, freq, "chan"]
 		load = iwphy[phy, freq, "load"]
 		if(band != band_conf) continue
+
+		if(phy == "phy0" && (chan+0) > 11)
+            continue
+        if(phy == "phy1" && (chan+0) > 48)
+            continue
 		printf "%d,%d,%d!", freq,chan,load
 	}
 }
