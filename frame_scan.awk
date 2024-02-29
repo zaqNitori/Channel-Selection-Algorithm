@@ -17,6 +17,12 @@ function Initial() {
 
         freq                       = $2
         chan                       = extract($4)
+
+        if(phy == "phy0" && (chan+0) > 11)
+            continue
+        if(phy == "phy1" && (chan+0) > 48)
+            continue
+
         freq2chan[phy, freq]       = chan
         chan2freq[phy, chan]       = freq
         amount[phy, chan, "Total"] = 0
