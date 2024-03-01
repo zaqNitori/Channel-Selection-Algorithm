@@ -15,8 +15,9 @@ function seperate_Effect() {
         # create freq and channel mapping
         freq2chan[s[1]] = s[2]
 
-        # store effect values and can use freq + chan to get them
-        out[s[1], s[2], "effect"] = s[3]
+        # store dbm and aps values and can use freq + chan to get them
+        out[s[1], s[2], "dbm"] = s[3]
+        out[s[1], s[2], "aps"] = s[4]
     }
 
 }
@@ -54,14 +55,15 @@ function show() {
     cmd = "sort -n"
 
     # format the output
-    printf "Freq\tChannel\tEffect\tTotal_A\tTotal_S\tMgmt_A\tMgmt_S\tCtrl_A\tCtrl_S\tData_A\tData_S\tUsage\n"
+    printf "Freq\tChannel\tSignal\tAPs\tTotal_A\tTotal_S\tMgmt_A\tMgmt_S\tCtrl_A\tCtrl_S\tData_A\tData_S\tUsage\n"
 
     for(tmp in freq2chan) {
         split(tmp, fc, SUBSEP)
         
         freq = fc[1]
         chan = freq2chan[freq]
-        eft = out[freq, chan, "effect"]
+        sig = out[freq, chan, "dbm"]
+        aps = out[freq, chan, "aps"]
         
         # Store Frame Amount
         ta = amount[freq, chan, "Total"]
@@ -78,10 +80,8 @@ function show() {
         # Store channel usage
         ug = usage[freq, chan] 
 
-        if(chan == "14") continue
-
         # show output in the ascending order
-        printf "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", freq, chan, eft, ta, ts, ma, ms, ca, cs, da, ds, ug | cmd
+        printf "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", freq, chan, sig, aps, ta, ts, ma, ms, ca, cs, da, ds, ug | cmd
     }
 
     close(cmd)
