@@ -70,8 +70,8 @@ function get_iwscan() {
 			watt = iwphy[phy_conf, freq, "watt"]
 			watt += 10 ^ (signal / 10.0)
 			iwphy[phy_conf, freq, "watt"] = watt
-			printf "freq: %d, ", freq
-			printf "signal: %d\n", signal
+			# printf "freq: %d, ", freq
+			# printf "signal: %d\n", signal
 		}
 
 		# can calculate avg signal by using following formula
@@ -232,9 +232,10 @@ function my_output() {
 		freq = iwphy_sub[2]
 		band = iwphy[phy, freq, "band"]
 		chan = iwphy[phy, freq, "chan"]
-		load = iwphy[phy, freq, "load"]
+		avg_dbm = iwphy[phy, freq, "avg_dbm"]
+		aps = iwphy[phy, freq, "aps"]
 		if(band != band_conf) continue
-		printf "%d,%d,%d!", freq,chan,load
+		printf "%d,%d,%d,%d!", freq, chan, avg_dbm, aps
 	}
 }
 
@@ -261,7 +262,7 @@ BEGIN {
 			#print_iwinfo()
 			#print_iwscan()
 			#print_iwlist()
-			#my_output()
+			my_output()
 		}
 	}
 }
