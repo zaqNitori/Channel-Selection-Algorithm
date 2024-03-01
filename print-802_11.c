@@ -2575,6 +2575,7 @@ ieee802_11_print(netdissect_options *ndo,
 	fc = GET_LE_U_2(p);
 	hdrlen = extract_header_length(ndo, fc);
 	if (hdrlen == 0) {
+		print_more_info(ndo, "None", orig_caplen);
 		/* Unknown frame type or control frame subtype; quit. */
 		return (0);
 	}
