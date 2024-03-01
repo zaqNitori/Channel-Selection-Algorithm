@@ -58,18 +58,20 @@ function get_iwscan() {
 		
 		if((cnt % 2) == 0) {
 			freq = $2
-			load = iwphy[phy_conf, freq, "load"]
+			aps = iwphy[phy_conf, freq, "aps"]
 
-			# Use % 100 to get the number of APs
-			load += 1
+			# Store the number of APs
+			aps += 1
+			iwphy[phy_conf, freq, "aps"] = aps
 		}
 		else {
 			signal = $2
 			# load represent the expect interference from surrounding APs
-			load += (signal + 100) * 100
-			iwphy[phy_conf, freq, "load"] = load
-			# printf "freq: %d\n", freq
-			# printf "signal: %d\n", signal
+			watt = iwphy[phy_conf, freq, "watt"]
+			watt += 10 ^ (signal / 10.0)
+			iwphy[phy_conf, freq, "watt"] = watt
+			printf "freq: %d, ", freq
+			printf "signal: %d\n", signal
 		}
 
 		# can calculate avg signal by using following formula
@@ -77,6 +79,21 @@ function get_iwscan() {
 		cnt += 1
 	}
 	close(cmd)
+}
+
+function calculate_avg_dbm() {
+	for(iwphy_subs in iwphy) {
+		split(iwphy_subs, iwphy_sub, SUBSEP)
+		if(iwphy_sub[3] != "watt") continue
+		phy = iwphy_sub[1]
+		freq = iwphy_sub[2]
+		aps = iwphy[phy, freq, "aps"]
+		watt = iwphy[phy, freq, "watt"]
+		if(aps == 0) continue
+		avg_watt = watt * 1.0 / aps
+		avg_dbm = 10 * (log(avg_watt) / log(10))
+		iwphy[phy, freq, "avg_dbm"] = avg_dbm
+	}
 }
 
 # function get_iwscan() {
@@ -236,6 +253,7 @@ BEGIN {
 		get_iwdev()
 		get_iwconf()
 		get_iwscan()
+		calculate_avg_dbm()
 		#get_iwload()
 		#get_iwstatus()
 		if(subcmd == "get") get_iwchan()
@@ -243,7 +261,7 @@ BEGIN {
 			#print_iwinfo()
 			#print_iwscan()
 			#print_iwlist()
-			my_output()
+			#my_output()
 		}
 	}
 }
