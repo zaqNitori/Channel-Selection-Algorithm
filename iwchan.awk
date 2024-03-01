@@ -58,17 +58,19 @@ function get_iwscan() {
 		
 		if((cnt % 2) == 0) {
 			freq = $2
-			load = iwphy[phy_conf, freq, "load"]
+			aps = iwphy[phy_conf, freq, "aps"]
 
-			# Use % 100 to get the number of APs
-			load += 1
+			# Store the number of APs
+			aps += 1
+			iwphy[phy_conf, freq, "aps"] = aps
 		}
 		else {
 			signal = $2
 			# load represent the expect interference from surrounding APs
-			load += (signal + 100) * 100
-			iwphy[phy_conf, freq, "load"] = load
-			# printf "freq: %d\n", freq
+			watt = iwphy[phy_conf, freq, "watt"]
+			watt += 10 ^ (signal / 10.0)
+			iwphy[phy_conf, freq, "watt"] = watt
+			# printf "freq: %d, ", freq
 			# printf "signal: %d\n", signal
 		}
 
@@ -79,131 +81,19 @@ function get_iwscan() {
 	close(cmd)
 }
 
-# function get_iwscan() {
-	#cmd = "iw dev "dev_conf" scan"
-
-	# while(cmd | getline) {
-		# if($0 ~ /^\s*BSS\s/)
-		# 	bssid = gensub(/^\s*\w*\s*([:0-9a-f]+).*$/, "\\1", 1, $0)
-		# else if($0 ~ /^\s*freq:/) {
-		# 	freq = gensub(/^\s*\w*:\s*([0-9]+).*$/, "\\1", 1, $0)
-		# 	iwscan[bssid, "freq"] = freq
-		# }
-		# else if($0 ~ /^\s*signal:/) {
-		# 	signal = gensub(/^\s*\w*:\s*([-.0-9]+).*$/, "\\1", 1, $0) + 0
-		# 	iwscan[bssid, "signal"] = signal
-		# 	if(signal < - 100) quality = 0
-		# 	else if(signal < - 50) quality = 2 * (signal + 100)
-		# 	else quality = 100
-		# 	iwscan[bssid, "quality"] = quality
-		# }
-		# else if($0 ~ /^\s*SSID:/) {
-		# 	ssid = gensub(/^\s*\w*:\s*(.*)$/, "\\1", 1, $0)
-		# 	iwscan[bssid, "ssid"] = ssid
-		# }
-#  	}
-# 	close(cmd)
-# }
-
-function get_iwload() {
+function calculate_avg_dbm() {
 	for(iwphy_subs in iwphy) {
 		split(iwphy_subs, iwphy_sub, SUBSEP)
-		if(iwphy_sub[3] != "chan") continue
+		if(iwphy_sub[3] != "watt") continue
 		phy = iwphy_sub[1]
 		freq = iwphy_sub[2]
-		band = iwphy[phy, freq, "band"]
-		load = iwphy[phy, freq, "load"]
-		if(band != band_conf) continue
-		for(iwscan_subs in iwscan) {
-			split(iwscan_subs, iwscan_sub, SUBSEP)
-			if(iwscan_sub[2] != "freq") continue
-			bssid = iwscan_sub[1]
-			freq_bssid = iwscan[bssid, "freq"]
-			signal = iwscan[bssid, "signal"]
-			freq_diff = freq - freq_bssid
-			if(freq_diff < 0) freq_diff = - freq_diff
-			if(freq_diff < 5) signal_factor = 100
-			else if(freq_diff < 10) signal_factor = 95
-			else if(freq_diff < 15) signal_factor = 85
-			else if(freq_diff < 20) signal_factor = 15
-			else if(freq_diff < 25) signal_factor = 5
-			else signal_factor = 0
-			if(signal < - 100) load += 0
-			else load += (signal + 100) * signal_factor
-			iwphy[phy, freq, "load"] = load
-		}
+		aps = iwphy[phy, freq, "aps"]
+		watt = iwphy[phy, freq, "watt"]
+		if(aps == 0) continue
+		avg_watt = watt * 1.0 / aps
+		avg_dbm = 10 * (log(avg_watt) / log(10))
+		iwphy[phy, freq, "avg_dbm"] = avg_dbm
 	}
-}
- 
-function get_iwstatus() {
-	for(iwphy_subs in iwphy) {
-		split(iwphy_subs, iwphy_sub, SUBSEP)
-		if(iwphy_sub[3] != "chan") continue
-		phy = iwphy_sub[1]
-		freq = iwphy_sub[2]
-		band = iwphy[phy, freq, "band"]
-		load = iwphy[phy, freq, "load"]
-		if(band != band_conf) continue
-		if(load_optim != "" && load_optim < load) continue
-		freq_optim = freq
-		load_optim = load
-	}
-	status_conf = "-"
-	iwphy[phy_conf, freq_conf, "status"] = status_conf
-	status_optim = iwphy[phy_conf, freq_optim, "status"] "+"
-	iwphy[phy_conf, freq_optim, "status"] = status_optim
-}
- 
-function get_iwchan() {
-	freq_diff = freq_conf - freq_optim
-	load_conf = iwphy[phy_conf, freq_conf, "load"]
-	load_optim = iwphy[phy_conf, freq_optim, "load"]
-	load_diff = load_conf - load_optim
-	if(freq_diff < 0) freq_diff = - freq_diff
-	if(freq_diff < freq_thr || load_diff < load_thr) return
-	chan_optim = iwphy[phy_conf, freq_optim, "chan"]
-	printf "%d\n", chan_optim
-}
- 
-function print_iwinfo() {
-	printf "Phy:\t%s\nDev:\t%s\nBand:\t%s\nFreqTh:\t%d\nLoadTh:\t%d\n",
-		phy_conf, dev_conf, band_conf, freq_thr, load_thr
-}
- 
-function print_iwscan() {
-	cmd = "sort -n"
-	printf "\nFreq\tChannel\tSignal\tQuality\tBSSID\t\t\tSSID\n"
-	for(iwscan_subs in iwscan) {
-		split(iwscan_subs, iwscan_sub, SUBSEP)
-		if(iwscan_sub[2] != "ssid") continue
-		bssid = iwscan_sub[1]
-		freq = iwscan[bssid, "freq"]
-		chan = iwphy[phy_conf, freq, "chan"]
-		signal = iwscan[bssid, "signal"]
-		quality = iwscan[bssid, "quality"]
-		ssid = iwscan[bssid, "ssid"]
-		printf "%d\t%d\t%d\t%d\t%s\t%s\n", freq, chan, signal, quality,
-			bssid, ssid | cmd
-	}
-	close(cmd)
-}
- 
-function print_iwlist() {
-	cmd = "sort -n"
-	printf "\nFreq\tChannel\tLoad\tStatus\n"
-	for(iwphy_subs in iwphy) {
-		split(iwphy_subs, iwphy_sub, SUBSEP)
-		if(iwphy_sub[3] != "chan") continue
-		phy = iwphy_sub[1]
-		freq = iwphy_sub[2]
-		band = iwphy[phy, freq, "band"]
-		chan = iwphy[phy, freq, "chan"]
-		load = iwphy[phy, freq, "load"]
-		status = iwphy[phy, freq, "status"]
-		if(band != band_conf) continue
-		printf "%d\t%d\t%d\t%s\n", freq, chan, load, status | cmd
-	}
-	close(cmd)
 }
 
 function my_output() {
@@ -215,14 +105,15 @@ function my_output() {
 		freq = iwphy_sub[2]
 		band = iwphy[phy, freq, "band"]
 		chan = iwphy[phy, freq, "chan"]
-		load = iwphy[phy, freq, "load"]
+		avg_dbm = iwphy[phy, freq, "avg_dbm"]
+		aps = iwphy[phy, freq, "aps"]
 		if(band != band_conf) continue
 
 		if(phy == "phy0" && (chan+0) > 11)
             continue
         if(phy == "phy1" && (chan+0) > 48)
             continue
-		printf "%d,%d,%d!", freq,chan,load
+		printf "%d,%d,%d,%d!", freq, chan, avg_dbm, aps
 	}
 }
 
@@ -241,13 +132,8 @@ BEGIN {
 		get_iwdev()
 		get_iwconf()
 		get_iwscan()
-		#get_iwload()
-		#get_iwstatus()
-		if(subcmd == "get") get_iwchan()
-		else if(subcmd == "show") {
-			#print_iwinfo()
-			#print_iwscan()
-			#print_iwlist()
+		calculate_avg_dbm()
+		if(subcmd == "show") {
 			my_output()
 		}
 	}
