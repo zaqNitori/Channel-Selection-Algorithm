@@ -48,6 +48,9 @@ function seperate_FrameInfo() {
 
         # Store Usage
         usage[freq, chan] = info[11]
+
+        # Store Avg dBm during usage
+        usage_Signal[freq, chan] = info[12]
     }
 }
 
@@ -55,7 +58,7 @@ function show() {
     cmd = "sort -n"
 
     # format the output
-    printf "Freq\tChannel\tSignal\tAPs\tTotal_A\tTotal_S\tMgmt_A\tMgmt_S\tCtrl_A\tCtrl_S\tData_A\tData_S\tUsage\n"
+    printf "Freq\tChannel\tSignal\tAPs\tTotal_A\tTotal_S\tMgmt_A\tMgmt_S\tCtrl_A\tCtrl_S\tData_A\tData_S\tUsage\tU_Sig\n"
 
     for(tmp in freq2chan) {
         split(tmp, fc, SUBSEP)
@@ -80,8 +83,11 @@ function show() {
         # Store channel usage
         ug = usage[freq, chan] 
 
+        # Store avg dbm during duration time
+        ug_sig = usage_Signal[freq, chan]
+
         # show output in the ascending order
-        printf "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", freq, chan, sig, aps, ta, ts, ma, ms, ca, cs, da, ds, ug | cmd
+        printf "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", freq, chan, sig, aps, ta, ts, ma, ms, ca, cs, da, ds, ug, ug_sig | cmd
     }
 
     close(cmd)

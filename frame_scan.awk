@@ -34,6 +34,7 @@ function Initial() {
         size[phy, chan, "Ctrl"]    = 0
         size[phy, chan, "Data"]    = 0
         duration[phy, chan]        = 0
+        joule[phy, chan]           = 0
     }
     close(cmd)
 }
@@ -70,6 +71,22 @@ function Scan() {
 
         # Collecting the duration
         duration[phy, chan] += dura
+
+        # Calculate Energy Consume Energy = Power(mWatt) x Time(us)
+        {
+            pos = index($0, "dBm")
+            if(pos == 0) continue
+            
+            tmp = substr($0, pos - 4, 4)
+            cnt = split(tmp, sig, " ")
+            if(cnt == 1)
+                    dbm = (sig[1] + 0)
+            else
+                    dbm = (sig[2] + 0)
+            
+            watt = 10 ^ (dbm / 10.0)
+            joule[phy, chan] += dura * watt
+        }
     }
     close(cmd)
 }
@@ -100,7 +117,13 @@ function Show() {
         dura = duration[phy, chan]
         usage = (dura * 100) / (1000000 * interval) + 0.5
 
-        printf "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d!", freq, chan, ta, ts, ma, ms, ca, cs, da, ds, usage
+        # Get Energy collect from duration
+        # And calculate avg_dbm during duration time
+        j = joule[phy, chan]
+        if(dura > 0)
+            ug_sig = 10 * (log(j / dura) / log(10))
+
+        printf "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d!", freq, chan, ta, ts, ma, ms, ca, cs, da, ds, usage, ug_sig
     }
 
 }
