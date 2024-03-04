@@ -38,6 +38,22 @@ function Scan() {
 
         # Collecting the duration
         duration += dura
+
+        # Collecting Received Energy.
+        {
+            pos = index($0, "dBm")
+            if(pos == 0) continue
+
+            tmp = substr($0, pos - 4, 4)
+            cnt = split(tmp, sig, " ")
+            if(cnt == 1)
+                dbm = (sig[1] + 0)
+            else
+                dbm = (sig[2] + 0)
+            
+            watt = 10 ^ (dbm / 10.0)
+            joule += dura * watt
+        }
     }
     close(cmd)
 }
@@ -47,9 +63,16 @@ function Show() {
     # Get duration and calculate usage
     # Plus 0.5 to do rounding
     #usage = (duration * 100) / (1000000 * interval) + 0.5
-    #usage = (duration) / (10000 * interval) + 0.5
+    usage = (duration) / (10000 * interval) + 0.5
 
-    printf "%d,%d,%d", total_amounts, total_size, duration
+    # Calculate Average Watt
+    # And compared with CS.sh's output
+    # to see if our system's ug_sig is bigger than or close to the ug_sig received from the channel
+    ug_sig = -100
+    if(dura > 0)
+        ug_sig = 10 * (log(joule / duration) / log(10))
+
+    printf "%d, %d, %d, %d\n", total_amount, total_size, usage, ug_sig
 
 }
 
