@@ -78,6 +78,7 @@ function Show() {
 
 BEGIN {
     interface = ARGV[1]
+    interval = ARGV[2]
 
     Scan()
     Show()
