@@ -12,34 +12,12 @@ function extract(str) {
     return substr(str, 2, length(str) - 2)
 }
 
-function Get_itf_addr() {
-
-    cmd = "iw dev"
-    target = ""
-
-    # Get target interface addr so that we can scan with grep
-    while(cmd | getline) {
-        if($2 == target_itf)
-            target = "Y"
-        
-        # speed up
-        if(target == "")
-            continue
-
-        if($1 == "addr") {
-            target = $2
-            break
-        }
-    }
-    close(cmd)
-}
-
 function Scan() {
     
     total_amount = 0
     total_size = 0
     duration = 0
-    cmd = "tcpdump -ne -y ieee802_11_radio -i "moni_itf" -e | grep \""target"\""
+    cmd = "tcpdump -ne -y ieee802_11_radio -i "moni_itf" -e | grep \""target_addr"\""
 
     # Reading Result of Tcpdump
     while(cmd | getline) {
@@ -104,10 +82,9 @@ function Show() {
 
 BEGIN {
     moni_itf   = ARGV[1]
-    target_itf = ARGV[2]
+    target_addr = ARGV[2]
     interval   = ARGV[3]
 
-    Get_itf_addr()
     Scan()
     Show()
 }
