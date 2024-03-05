@@ -14,13 +14,13 @@ if [ $res -ne 0 ]; then
     exit 0
 fi
 
-cd ~/cs
+cd ~/Monitor
 logFile="logMonitor"
 echo "----------monitor.sh----------" >> "${logFile}"
 
 moni_itf=""
 target_itf=""
-si=1
+si=10
 while getopts m:t:s: flag
 do
     case "${flag}" in
@@ -36,7 +36,18 @@ if [ "${moni_itf}" == "" ]; then
     exit 0
 fi
 
+if [ "${target_itf}" == "" ]; then
+    echo "Please give target interface!"
+    exit 0
+fi
 
+target_addr=`awk -f Get_Interface_Addr.awk "${target_itf}"`
+echo ${target_addr}
 
+result=`awk -f monitor.awk "${moni_itf}" "${target_addr}" "${si}"` & ./countdown.sh "${si}" "${target_addr}"
+wait
 
+echo ${result}
 
+echo "----------monitor.sh----------" >> "${logFile}"
+echo "Monitor Finish!!" | tee -a "${logFile}"
