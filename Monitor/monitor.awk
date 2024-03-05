@@ -3,53 +3,23 @@
 # Use tcpdump to scan without channel hopping
 #
 
-#!/usr/bin/awk -f
-#
-# Use tcpdump to scan frames
-#
-
 function extract(str) {
     return substr(str, 2, length(str) - 2)
 }
 
-function Initial() {
-    
-    # Search available channel by using iw phy command
-    cmd="iw phy "phy" channels | grep \"*\" | grep -v \"disabled\""
-
-    # Initial the array while reading the channel list
-    while(cmd | getline) {
-
-        freq                       = $2
-        chan                       = extract($4)
-        freq2chan[phy, freq]       = chan
-        chan2freq[phy, chan]       = freq
-        amount[phy, chan, "Total"] = 0
-        amount[phy, chan, "Mgmt"]  = 0
-        amount[phy, chan, "Ctrl"]  = 0
-        amount[phy, chan, "Data"]  = 0
-        size[phy, chan, "Total"]   = 0
-        size[phy, chan, "Mgmt"]    = 0
-        size[phy, chan, "Ctrl"]    = 0
-        size[phy, chan, "Data"]    = 0
-        duration[phy, chan]        = 0
-    }
-    close(cmd)
-}
-
 function Scan() {
     
-    cmd = "tcpdump -ne -y ieee802_11_radio -i "interface" -e | grep \"!\""
+    total_amount = 0
+    total_size = 0
+    duration = 0
+    cmd = "tcpdump -ne -y ieee802_11_radio -i "moni_itf" -e | grep \""target_addr"\""
 
     # Reading Result of Tcpdump
     while(cmd | getline) {
-        pos = index($0, "MHz")
-        if(pos == 0) continue
 
-        # Extract the freq
-        freq = substr($0, pos-5, 4)
-        chan = freq2chan[phy, freq]
-        if(chan == 14) continue
+        # Check if our info exists
+        pos = index($0, "!")
+        if(pos == 0) continue
 
         # Extract type and size
         # awk starts from index 1
@@ -60,50 +30,56 @@ function Scan() {
         dura = good[3]
 
         # Counting the frame amounts
-        amount[phy, chan, "Total"]++
-        amount[phy, chan, type]++
+        total_amount += 1
 
         # Collecting the frame sizes
-        size[phy, chan, "Total"] += size + 0
-        size[phy, chan, type] += size + 0
+        total_size += size + 0
 
         # Collecting the duration
-        duration[phy, chan] += dura
+        duration += dura
+
+        # Collecting Received Energy.
+        {
+            pos = index($0, "dBm")
+            if(pos == 0) continue
+
+            tmp = substr($0, pos - 4, 4)
+            cnt = split(tmp, sig, " ")
+            if(cnt == 1)
+                dbm = (sig[1] + 0)
+            else
+                dbm = (sig[2] + 0)
+            
+            watt = 10 ^ (dbm / 10.0)
+            joule += dura * watt
+        }
     }
     close(cmd)
 }
 
 function Show() {
 
-    for(subs in chan2freq) {
-        split(subs, tmp, SUBSEP)
-        
-        phy = tmp[1]
-        chan = tmp[2]
-        freq = chan2freq[phy, chan]
+    # Get duration and calculate usage
+    # Plus 0.5 to do rounding
+    #usage = (duration * 100) / (1000000 * interval) + 0.5
+    usage = (duration) / (10000 * interval) + 0.5
 
-        # Get Frame Amount
-        ta = amount[phy, chan, "Total"]
-        
-        # Get Frame Size
-        ts = size[phy, chan, "Total"]
+    # Calculate Average Watt
+    # And compared with CS.sh's output
+    # to see if our system's ug_sig is bigger than or close to the ug_sig received from the channel
+    ug_sig = -100
+    if(dura > 0)
+        ug_sig = 10 * (log(joule / duration) / log(10))
 
-        # Get duration and calculate usage
-        # Plus 0.5 to do rounding
-        dura = duration[phy, chan]
-        usage = (dura * 100) / (1000000 * interval) + 0.5
-
-        printf "%d,%d,%d!", freq, chan, ta, ts, usage
-    }
+    printf "%d, %d, %d, %d", total_amount, total_size, usage, ug_sig
 
 }
 
 BEGIN {
-    phy       = ARGV[1]
-    interface = ARGV[2]
-    interval  = ARGV[3]
+    moni_itf   = ARGV[1]
+    target_addr = ARGV[2]
+    interval   = ARGV[3]
 
-    Initial()
     Scan()
     Show()
 }
