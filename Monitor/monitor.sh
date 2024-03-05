@@ -42,12 +42,11 @@ if [ "${target_itf}" == "" ]; then
 fi
 
 target_addr=`awk -f Get_Interface_Addr.awk "${target_itf}"`
-echo ${target_addr}
 
-result=`awk -f monitor.awk "${moni_itf}" "${target_addr}" "${si}"` & ./countdown.sh "${si}" "${target_addr}"
+./countdown.sh "${si}" "${moni_itf}" & result=`awk -f monitor.awk "${moni_itf}" "${target_addr}" "${si}"`
 wait
 
-echo ${result}
+echo "${result}"
 
 echo "----------monitor.sh----------" >> "${logFile}"
 echo "Monitor Finish!!" | tee -a "${logFile}"

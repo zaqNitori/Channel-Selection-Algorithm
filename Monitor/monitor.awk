@@ -3,11 +3,6 @@
 # Use tcpdump to scan without channel hopping
 #
 
-#!/usr/bin/awk -f
-#
-# Use tcpdump to scan frames
-#
-
 function extract(str) {
     return substr(str, 2, length(str) - 2)
 }
@@ -76,7 +71,7 @@ function Show() {
     if(dura > 0)
         ug_sig = 10 * (log(joule / duration) / log(10))
 
-    printf "%d, %d, %d, %d\n", total_amount, total_size, usage, ug_sig
+    printf "%d, %d, %d, %d", total_amount, total_size, usage, ug_sig
 
 }
 
