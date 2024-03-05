@@ -7,12 +7,12 @@
 cd ~/Monitor
 
 count=$1
-target_addr=$2
+moni_itf=$2
 logFile="logMonitor"
 
 sleep $count
 
 # Stop monitoring
-pid=`ps | grep -E "tcpdump.*ieee802_11_radio.*${target_addr}" | grep -v "grep" | awk '{print $1}'`
+pid=`ps | grep -E "tcpdump -ne -y ieee802_11_radio -i ${moni_itf} -e" | grep -v "grep" | awk '{print $1}'`
 kill ${pid}
 echo "kill ${pid}" >> "${logFile}"
