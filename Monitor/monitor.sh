@@ -18,18 +18,20 @@ cd ~/cs
 logFile="logMonitor"
 echo "----------monitor.sh----------" >> "${logFile}"
 
-itf=""
+moni_itf=""
+target_itf=""
 si=1
-while getopts i:s: flag
+while getopts m:t:s: flag
 do
     case "${flag}" in
-        i) itf=${OPTARG};;
+        m) moni_itf=${OPTARG};;
+        t) target_itf=${OPTARG};;
         s) si=${OPTARG};;
     esac
 done
 
 # The p tag phy should be needed
-if [ "${itf}" == "" ]; then
+if [ "${moni_itf}" == "" ]; then
     echo "Please give monitor interface!"
     exit 0
 fi
