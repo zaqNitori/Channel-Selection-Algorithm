@@ -5,7 +5,7 @@
 # and combine them to show a more precisely channel measurement.
 #
 
-cd ~/cs
+cd ~/cs/Scan
 logFile="logCS"
 echo "----------Channel_Selection.sh----------" >> "${logFile}"
 

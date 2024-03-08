@@ -14,7 +14,7 @@ if [ $res -ne 0 ]; then
     exit 0
 fi
 
-cd ~/Monitor
+cd ~/cs/Monitor
 logFile="logMonitor"
 echo "----------monitor.sh----------" >> "${logFile}"
 

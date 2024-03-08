@@ -15,7 +15,7 @@ si=$4
 sleep 50
 
 cd ~/cs/Monitor
-./monitor.sh moni_itf target_itf si
+./monitor.sh -m "${moni_itf}" -t "${target_itf}" -s "${si}" -w monitor
 
 # Wait until monitor finish then do Scan
 wait
