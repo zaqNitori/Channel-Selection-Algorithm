@@ -89,7 +89,10 @@ function calculate_avg_dbm() {
 		freq = iwphy_sub[2]
 		aps = iwphy[phy, freq, "aps"]
 		watt = iwphy[phy, freq, "watt"]
-		if(aps == 0) continue
+		if(aps == 0) {
+			iwphy[phy, freq, "avg_dbm"] = -100
+			continue
+		}
 		avg_watt = watt * 1.0 / aps
 		avg_dbm = 10 * (log(avg_watt) / log(10))
 		iwphy[phy, freq, "avg_dbm"] = avg_dbm
