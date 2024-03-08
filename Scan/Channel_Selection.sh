@@ -90,7 +90,7 @@ wait
 result=`awk -f Combine.awk "${effect}" "${frame_info}"`
 
 if [ $writeFlag -eq 1 ]; then
-    echo "${now}" > "${writeFile}"
+    # echo "${now}" > "${writeFile}"
     echo "${result}" >> "${writeFile}"
 else
     echo "${result}"
