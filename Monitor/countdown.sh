@@ -4,7 +4,7 @@
 # And when it expire then will kill the monitor process
 #
 
-cd ~/Monitor
+cd ~/cs/Monitor
 
 count=$1
 moni_itf=$2
