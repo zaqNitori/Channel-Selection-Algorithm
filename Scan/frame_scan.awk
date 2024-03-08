@@ -123,7 +123,7 @@ function Show() {
         if(dura > 0)
             ug_sig = 10 * (log(j / dura) / log(10))
         else
-            ug_sig = 0
+            ug_sig = -100
 
         printf "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d!", freq, chan, ta, ts, ma, ms, ca, cs, da, ds, usage, ug_sig
     }
