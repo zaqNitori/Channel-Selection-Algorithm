@@ -10,9 +10,10 @@ phy=$1
 moni_itf=$2
 target_itf=$3
 si=$4
+delay=$5
 
 # Avoid multiple AP to scan at the same time
-sleep 50
+sleep $delay
 
 cd ~/cs/Monitor
 ./monitor.sh -m "${moni_itf}" -t "${target_itf}" -s "${si}" -w monitor
