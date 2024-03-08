@@ -21,12 +21,19 @@ echo "----------monitor.sh----------" >> "${logFile}"
 moni_itf=""
 target_itf=""
 si=10
-while getopts m:t:s: flag
+writeFile=""
+writeFlag=0
+
+while getopts m:t:s:w: flag
 do
     case "${flag}" in
         m) moni_itf=${OPTARG};;
         t) target_itf=${OPTARG};;
         s) si=${OPTARG};;
+        w)
+            writeFile=${OPTARG}
+            writeFlag=1
+            ;;
     esac
 done
 
@@ -46,7 +53,12 @@ target_addr=`awk -f Get_Interface_Addr.awk "${target_itf}"`
 ./countdown.sh "${si}" "${moni_itf}" & result=`awk -f monitor.awk "${moni_itf}" "${target_addr}" "${si}"`
 wait
 
-echo "${result}"
+if [ $writeFlag -eq 1 ]; then
+    # echo "${now}" >> "${writeFile}"
+    echo "${result}" >> "${writeFile}"
+else
+    echo "${result}"
+fi
 
 echo "----------monitor.sh----------" >> "${logFile}"
 echo "Monitor Finish!!" | tee -a "${logFile}"
