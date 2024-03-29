@@ -3111,8 +3111,8 @@ print_chaninfo(netdissect_options *ndo,
 			ND_PRINT(" ht/40-");
 		else if (flags & IEEE80211_CHAN_HT40U)
 			ND_PRINT(" ht/40+");
-		ND_PRINT(" ");
 	}
+	ND_PRINT(" ");
 }
 
 static int
