@@ -2601,7 +2601,7 @@ ieee802_11_print(netdissect_options *ndo,
 		return hdrlen;
 	}
 
-	if (ndo->ndo_eflag && SHOW_ORIGIN_OUTPUT)
+	if (ndo->ndo_eflag)
 		ieee_802_11_hdr_print(ndo, fc, p, hdrlen, meshdrlen);
 
 	switch (FC_TYPE(fc))
