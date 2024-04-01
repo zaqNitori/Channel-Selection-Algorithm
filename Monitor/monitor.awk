@@ -12,7 +12,10 @@ function Scan() {
     total_amount = 0
     total_size = 0
     duration = 0
-    cmd = "tcpdump -ne -y ieee802_11_radio -i "moni_itf" -e | grep \""target_addr"\""
+    first_tsft = 0
+    time_pass = 0
+
+    cmd = "tcpdump -ne -y ieee802_11_radio -i "moni_itf" -e -B 100000 | grep \""target_addr"\""
 
     # Reading Result of Tcpdump
     while(cmd | getline) {
@@ -20,6 +23,28 @@ function Scan() {
         # Check if our info exists
         pos = index($0, "!")
         if(pos == 0) continue
+
+        # Extract TSFT
+        # Check if str we get is tsft
+        if(tsft ~ /^[0-9]+$/){
+            tsft = substr($2, 1, length($2) - 2)
+        }
+        else {
+            tsft = first_tsft
+        }
+
+        # Check if the record we parse is within the interval time 
+        if(first_tsft == 0) {
+            first_tsft = tsft + 0
+        }
+        else {
+            time_pass = (tsft - first_tsft) * 1.0 / 1000000
+        }
+        
+        # Check if exceed the interval time , then kill the tcpdump process
+        if(time_pass > (interval + 0)) {
+            break
+        }
 
         # Extract type and size
         # awk starts from index 1
