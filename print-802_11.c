@@ -1317,6 +1317,8 @@ static const char *reason_text[] = {
 };
 #define NUM_REASONS	(sizeof(reason_text) / sizeof(reason_text[0]))
 
+#define SHOW_ORIGIN_OUTPUT 0
+
 static int
 wep_print(netdissect_options *ndo,
 	  const u_char *p)
@@ -2378,7 +2380,8 @@ extract_header_length(netdissect_options *ndo,
 		case CTRL_END_ACK:
 			return CTRL_END_ACK_HDRLEN;
 		default:
-			ND_PRINT("unknown 802.11 ctrl frame subtype (%u)", FC_SUBTYPE(fc));
+			if(SHOW_ORIGIN_OUTPUT)
+				ND_PRINT("unknown 802.11 ctrl frame subtype (%u)", FC_SUBTYPE(fc));
 			return 0;
 		}
 	case T_DATA:
@@ -2387,7 +2390,8 @@ extract_header_length(netdissect_options *ndo,
 			len += 2;
 		return len;
 	default:
-		ND_PRINT("unknown 802.11 frame type (%u)", FC_TYPE(fc));
+		if(SHOW_ORIGIN_OUTPUT)
+			ND_PRINT("unknown 802.11 frame type (%u)", FC_TYPE(fc));
 		return 0;
 	}
 }
@@ -2406,7 +2410,7 @@ ieee_802_11_hdr_print(netdissect_options *ndo,
 		      uint16_t fc, const u_char *p, u_int hdrlen,
 		      u_int meshdrlen)
 {
-	if (ndo->ndo_vflag) {
+	if (ndo->ndo_vflag && SHOW_ORIGIN_OUTPUT) {
 		if (FC_MORE_DATA(fc))
 			ND_PRINT("More Data ");
 		if (FC_MORE_FLAG(fc))
@@ -2423,7 +2427,7 @@ ieee_802_11_hdr_print(netdissect_options *ndo,
 			ND_PRINT("%uus ",
 			    GET_LE_U_2(((const struct mgmt_header_t *)p)->duration));
 	}
-	if (meshdrlen != 0) {
+	if (meshdrlen != 0 && SHOW_ORIGIN_OUTPUT) {
 		const struct meshcntl_t *mc =
 		    (const struct meshcntl_t *)(p + hdrlen - meshdrlen);
 		u_int ae = GET_U_1(mc->flags) & 3;
@@ -2600,61 +2604,74 @@ ieee802_11_print(netdissect_options *ndo,
 	if (ndo->ndo_eflag)
 		ieee_802_11_hdr_print(ndo, fc, p, hdrlen, meshdrlen);
 
-	/*
-	 * Go past the 802.11 header.
-	 */
-	length -= hdrlen;
-	caplen -= hdrlen;
-	p += hdrlen;
+	switch (FC_TYPE(fc))
+	{
+		case T_MGMT:
+			print_more_info(ndo, "Mgmt", orig_caplen);
+			break;
+		case T_CTRL:
+			print_more_info(ndo, "Ctrl", orig_caplen);
+			break;
+		case T_DATA:
+			print_more_info(ndo, "Data", orig_caplen);
+			break;
+		default:
+			break;
+	}
 
-	src.addr_string = mac48_string;
-	dst.addr_string = mac48_string;
-	switch (FC_TYPE(fc)) {
-	case T_MGMT:
-		print_more_info(ndo, "Mgmt", orig_caplen);
-		get_mgmt_src_dst_mac(p - hdrlen, &src.addr, &dst.addr);
-		if (!mgmt_body_print(ndo, fc, src.addr, p, length)) {
-			nd_print_trunc(ndo);
-			return hdrlen;
-		}
-		break;
-	case T_CTRL:
-		print_more_info(ndo, "Ctrl", orig_caplen);
-		if (!ctrl_body_print(ndo, fc, p - hdrlen)) {
-			nd_print_trunc(ndo);
-			return hdrlen;
-		}
-		break;
-	case T_DATA:
-		print_more_info(ndo, "Data", orig_caplen);
-		if (DATA_FRAME_IS_NULL(FC_SUBTYPE(fc)))
-			return hdrlen;	/* no-data frame */
-		/* There may be a problem w/ AP not having this bit set */
-		if (FC_PROTECTED(fc)) {
-			if (!wep_print(ndo, p)) {
+	if(SHOW_ORIGIN_OUTPUT) {
+		/*
+		* Go past the 802.11 header.
+		*/
+		length -= hdrlen;
+		caplen -= hdrlen;
+		p += hdrlen;
+
+		src.addr_string = mac48_string;
+		dst.addr_string = mac48_string;
+		switch (FC_TYPE(fc)) {
+		case T_MGMT:
+			get_mgmt_src_dst_mac(p - hdrlen, &src.addr, &dst.addr);
+			if (!mgmt_body_print(ndo, fc, src.addr, p, length)) {
 				nd_print_trunc(ndo);
 				return hdrlen;
 			}
-		} else {
-			get_data_src_dst_mac(fc, p - hdrlen, &src.addr, &dst.addr);
-			llc_hdrlen = llc_print(ndo, p, length, caplen, &src, &dst);
-			if (llc_hdrlen < 0) {
-				/*
-				 * Some kinds of LLC packet we cannot
-				 * handle intelligently
-				 */
-				if (!ndo->ndo_suppress_default_print)
-					ND_DEFAULTPRINT(p, caplen);
-				llc_hdrlen = -llc_hdrlen;
+			break;
+		case T_CTRL:
+			if (!ctrl_body_print(ndo, fc, p - hdrlen)) {
+				nd_print_trunc(ndo);
+				return hdrlen;
 			}
-			hdrlen += llc_hdrlen;
+			break;
+		case T_DATA:
+			if (DATA_FRAME_IS_NULL(FC_SUBTYPE(fc)))
+				return hdrlen;	/* no-data frame */
+			/* There may be a problem w/ AP not having this bit set */
+			if (FC_PROTECTED(fc)) {
+				if (!wep_print(ndo, p)) {
+					nd_print_trunc(ndo);
+					return hdrlen;
+				}
+			} else {
+				get_data_src_dst_mac(fc, p - hdrlen, &src.addr, &dst.addr);
+				llc_hdrlen = llc_print(ndo, p, length, caplen, &src, &dst);
+				if (llc_hdrlen < 0) {
+					/*
+					* Some kinds of LLC packet we cannot
+					* handle intelligently
+					*/
+					if (!ndo->ndo_suppress_default_print)
+						ND_DEFAULTPRINT(p, caplen);
+					llc_hdrlen = -llc_hdrlen;
+				}
+				hdrlen += llc_hdrlen;
+			}
+			break;
+		default:
+			/* We shouldn't get here - we should already have quit */
+			break;
 		}
-		break;
-	default:
-		/* We shouldn't get here - we should already have quit */
-		break;
 	}
-
 	return hdrlen;
 }
 
@@ -3087,12 +3104,14 @@ print_chaninfo(netdissect_options *ndo,
 	/*
 	 * These apply to 11n.
 	 */
-	if (flags & IEEE80211_CHAN_HT20)
-		ND_PRINT(" ht/20");
-	else if (flags & IEEE80211_CHAN_HT40D)
-		ND_PRINT(" ht/40-");
-	else if (flags & IEEE80211_CHAN_HT40U)
-		ND_PRINT(" ht/40+");
+	if(SHOW_ORIGIN_OUTPUT){
+		if (flags & IEEE80211_CHAN_HT20)
+			ND_PRINT(" ht/20");
+		else if (flags & IEEE80211_CHAN_HT40D)
+			ND_PRINT(" ht/40-");
+		else if (flags & IEEE80211_CHAN_HT40U)
+			ND_PRINT(" ht/40+");
+	}
 	ND_PRINT(" ");
 }
 
@@ -3112,6 +3131,7 @@ print_radiotap_field(netdissect_options *ndo,
 		rc = nd_cpack_uint64(ndo, s, &tsft);
 		if (rc != 0)
 			goto trunc;
+		
 		ND_PRINT("%" PRIu64 "us tsft ", tsft);
 		break;
 		}
@@ -3123,6 +3143,8 @@ print_radiotap_field(netdissect_options *ndo,
 		if (rc != 0)
 			goto trunc;
 		*flagsp = flagsval;
+		if(!SHOW_ORIGIN_OUTPUT)
+			break;
 		if (flagsval & IEEE80211_RADIOTAP_F_CFP)
 			ND_PRINT("cfp ");
 		if (flagsval & IEEE80211_RADIOTAP_F_SHORTPRE) {
@@ -3182,11 +3204,13 @@ print_radiotap_field(netdissect_options *ndo,
 			 * information from Flags, at least on
 			 * FreeBSD?
 			 */
-			ND_PRINT("MCS %u ", rate & 0x7f);
+			if(SHOW_ORIGIN_OUTPUT)
+				ND_PRINT("MCS %u ", rate & 0x7f);
 		} else
 			has_rate = 1;
 			dt_rate = .5 * rate;
-			ND_PRINT("%2.1f Mb/s ", .5 * rate);
+			if(SHOW_ORIGIN_OUTPUT)
+				ND_PRINT("%2.1f Mb/s ", .5 * rate);
 		break;
 		}
 
@@ -3220,7 +3244,8 @@ print_radiotap_field(netdissect_options *ndo,
 		rc = nd_cpack_uint8(ndo, s, &hoppat);
 		if (rc != 0)
 			goto trunc;
-		ND_PRINT("fhset %u fhpat %u ", hopset, hoppat);
+		if(SHOW_ORIGIN_OUTPUT)
+			ND_PRINT("fhset %u fhpat %u ", hopset, hoppat);
 		break;
 		}
 
@@ -3250,7 +3275,8 @@ print_radiotap_field(netdissect_options *ndo,
 		rc = nd_cpack_uint16(ndo, s, &lock_quality);
 		if (rc != 0)
 			goto trunc;
-		ND_PRINT("%u sq ", lock_quality);
+		if(SHOW_ORIGIN_OUTPUT)
+			ND_PRINT("%u sq ", lock_quality);
 		break;
 		}
 
@@ -3260,7 +3286,8 @@ print_radiotap_field(netdissect_options *ndo,
 		rc = nd_cpack_int16(ndo, s, &tx_attenuation);
 		if (rc != 0)
 			goto trunc;
-		ND_PRINT("%d tx power ", -tx_attenuation);
+		if(SHOW_ORIGIN_OUTPUT)			
+			ND_PRINT("%d tx power ", -tx_attenuation);
 		break;
 		}
 
@@ -3270,7 +3297,8 @@ print_radiotap_field(netdissect_options *ndo,
 		rc = nd_cpack_int8(ndo, s, &db_tx_attenuation);
 		if (rc != 0)
 			goto trunc;
-		ND_PRINT("%ddB tx attenuation ", -db_tx_attenuation);
+		if(SHOW_ORIGIN_OUTPUT)
+			ND_PRINT("%ddB tx attenuation ", -db_tx_attenuation);
 		break;
 		}
 
@@ -3280,7 +3308,8 @@ print_radiotap_field(netdissect_options *ndo,
 		rc = nd_cpack_int8(ndo, s, &dbm_tx_power);
 		if (rc != 0)
 			goto trunc;
-		ND_PRINT("%ddBm tx power ", dbm_tx_power);
+		if(SHOW_ORIGIN_OUTPUT)
+			ND_PRINT("%ddBm tx power ", dbm_tx_power);
 		break;
 		}
 
@@ -3290,7 +3319,8 @@ print_radiotap_field(netdissect_options *ndo,
 		rc = nd_cpack_uint8(ndo, s, &antenna);
 		if (rc != 0)
 			goto trunc;
-		ND_PRINT("antenna %u ", antenna);
+		if(SHOW_ORIGIN_OUTPUT)
+			ND_PRINT("antenna %u ", antenna);
 		break;
 		}
 
@@ -3300,7 +3330,8 @@ print_radiotap_field(netdissect_options *ndo,
 		rc = nd_cpack_uint8(ndo, s, &db_antsignal);
 		if (rc != 0)
 			goto trunc;
-		ND_PRINT("%udB signal ", db_antsignal);
+		if(SHOW_ORIGIN_OUTPUT)
+			ND_PRINT("%udB signal ", db_antsignal);
 		break;
 		}
 
@@ -3310,7 +3341,8 @@ print_radiotap_field(netdissect_options *ndo,
 		rc = nd_cpack_uint8(ndo, s, &db_antnoise);
 		if (rc != 0)
 			goto trunc;
-		ND_PRINT("%udB noise ", db_antnoise);
+		if(SHOW_ORIGIN_OUTPUT)
+			ND_PRINT("%udB noise ", db_antnoise);
 		break;
 		}
 
@@ -3407,15 +3439,19 @@ print_radiotap_field(netdissect_options *ndo,
 				 */
 				has_rate = 1;
 				dt_rate = htrate;
-				ND_PRINT("%.1f Mb/s MCS %u ", htrate, mcs_index);
+				if(SHOW_ORIGIN_OUTPUT)
+					ND_PRINT("%.1f Mb/s MCS %u ", htrate, mcs_index);
 			} else {
 				/*
 				 * We at least have the MCS index.
 				 * Print it.
 				 */
-				ND_PRINT("MCS %u ", mcs_index);
+				if(SHOW_ORIGIN_OUTPUT)
+					ND_PRINT("MCS %u ", mcs_index);
 			}
 		}
+		if(!SHOW_ORIGIN_OUTPUT)
+			break;
 		if (known & IEEE80211_RADIOTAP_MCS_BANDWIDTH_KNOWN) {
 			ND_PRINT("%s ",
 				ht_bandwidth[flags & IEEE80211_RADIOTAP_MCS_BANDWIDTH_MASK]);
@@ -3530,6 +3566,9 @@ print_radiotap_field(netdissect_options *ndo,
 		rc = nd_cpack_uint16(ndo, s, &partial_aid);
 		if (rc != 0)
 			goto trunc;
+
+		if(!SHOW_ORIGIN_OUTPUT)
+			break;
 		for (i = 0; i < 4; i++) {
 			u_int nss, mcs;
 			nss = mcs_nss[i] & IEEE80211_RADIOTAP_VHT_NSS_MASK;
@@ -3662,7 +3701,8 @@ print_radiotap_field(netdissect_options *ndo,
 		// ND_PRINT("BW Index: %d ", data_bw);
 		// ND_PRINT("GI Index: %d ", gi);
 		// ND_PRINT("NSTS Value: %d ", nsts);
-		ND_PRINT("Bit Rate: %.1f ", dt_rate);
+		if(SHOW_ORIGIN_OUTPUT)
+			ND_PRINT("Bit Rate: %.1f ", dt_rate);
 
 		break;
 	}
