@@ -36,7 +36,7 @@ function Get_Channel() {
 
     if(phy == "phy0")
         chan=chan" 14"
-    else
+    if(phy == "phy1")
         chan=chan" 100"
         
     printf "%s", chan
