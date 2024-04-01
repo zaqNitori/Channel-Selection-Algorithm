@@ -20,11 +20,9 @@ function Get_Channel() {
         tmp = extract($4)
         # (tmp+0) => cast string to int
         if(phy == "phy0" && (tmp+0) > 11) {
-            chan=chan" 14"
             continue
         }
         if(phy == "phy1" && (tmp+0) > 48){
-            chan=chan" 100"
             continue
         }
 
@@ -35,6 +33,12 @@ function Get_Channel() {
 
     }
     close(cmd)
+
+    if(phy == "phy0")
+        chan=chan" 14"
+    else
+        chan=chan" 100"
+        
     printf "%s", chan
 }
 
