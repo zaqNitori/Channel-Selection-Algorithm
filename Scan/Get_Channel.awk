@@ -19,10 +19,14 @@ function Get_Channel() {
 
         tmp = extract($4)
         # (tmp+0) => cast string to int
-        if(phy == "phy0" && (tmp+0) > 11)
+        if(phy == "phy0" && (tmp+0) > 11) {
+            chan=chan" 14"
             continue
-        if(phy == "phy1" && (tmp+0) > 48)
+        }
+        if(phy == "phy1" && (tmp+0) > 48){
+            chan=chan" 100"
             continue
+        }
 
         if(chan == "")
             chan = tmp
