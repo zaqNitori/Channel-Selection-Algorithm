@@ -50,7 +50,8 @@ fi
 
 target_addr=`awk -f Get_Interface_Addr.awk "${target_itf}"`
 
-./countdown.sh "${si}" "${moni_itf}" & result=`awk -f monitor.awk "${moni_itf}" "${target_addr}" "${si}"`
+#./countdown.sh "${si}" "${moni_itf}" & result=`awk -f monitor.awk "${moni_itf}" "${target_addr}" "${si}"`
+result=`awk -f monitor.awk "${moni_itf}" "${target_addr}" "${si}"
 wait
 
 if [ $writeFlag -eq 1 ]; then
