@@ -2410,7 +2410,7 @@ ieee_802_11_hdr_print(netdissect_options *ndo,
 		      uint16_t fc, const u_char *p, u_int hdrlen,
 		      u_int meshdrlen)
 {
-	if (ndo->ndo_vflag) {
+	if (ndo->ndo_vflag && SHOW_ORIGIN_OUTPUT) {
 		if (FC_MORE_DATA(fc))
 			ND_PRINT("More Data ");
 		if (FC_MORE_FLAG(fc))
@@ -2427,7 +2427,7 @@ ieee_802_11_hdr_print(netdissect_options *ndo,
 			ND_PRINT("%uus ",
 			    GET_LE_U_2(((const struct mgmt_header_t *)p)->duration));
 	}
-	if (meshdrlen != 0) {
+	if (meshdrlen != 0 && SHOW_ORIGIN_OUTPUT) {
 		const struct meshcntl_t *mc =
 		    (const struct meshcntl_t *)(p + hdrlen - meshdrlen);
 		u_int ae = GET_U_1(mc->flags) & 3;
@@ -3131,8 +3131,8 @@ print_radiotap_field(netdissect_options *ndo,
 		rc = nd_cpack_uint64(ndo, s, &tsft);
 		if (rc != 0)
 			goto trunc;
-		if(SHOW_ORIGIN_OUTPUT)
-			ND_PRINT("%" PRIu64 "us tsft ", tsft);
+		
+		ND_PRINT("%" PRIu64 "us tsft ", tsft);
 		break;
 		}
 
