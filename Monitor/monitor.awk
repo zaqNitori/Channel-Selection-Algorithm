@@ -7,19 +7,43 @@ function extract(str) {
     return substr(str, 2, length(str) - 2)
 }
 
+function Get_Flag_Cmd() {
+
+    if(myflag == "t") {
+        # Scan for specific target
+        flag_cmd = " | grep \""target_addr"\""
+    }
+    else if(myflag == "v") {
+        # Scan except specific target
+        flag_cmd = " | grep -v \""target_addr"\""
+    }
+    else if(myflag == "b") {
+        # Scan everything but seperate target and non-target
+        flag_cmd = ""
+    }
+    else {
+        # Scan everything
+        flag_cmd = ""
+    }
+
+}
+
 function Scan() {
     
-    total_amount = 0
-    total_size = 0
-    duration = 0
     first_tsft = 0
     time_pass = 0
 
-    cmd = "tcpdump -ne -y ieee802_11_radio -i "moni_itf" -e -B 100000 | grep \""target_addr"\""
+    total_amount = 0
+    total_size = 0
+    duration = 0
 
+    cmd = "tcpdump -ne -y ieee802_11_radio -i "moni_itf" -e -B 100000"
+    Get_Flag_Cmd()
+    cmd = cmd""flag_cmd
+    
     # Reading Result of Tcpdump
     while(cmd | getline) {
-
+        
         # Check if our info exists
         pos = index($0, "!")
         if(pos == 0) continue
@@ -101,9 +125,10 @@ function Show() {
 }
 
 BEGIN {
-    moni_itf   = ARGV[1]
+    moni_itf    = ARGV[1]
     target_addr = ARGV[2]
-    interval   = ARGV[3]
+    interval    = ARGV[3]
+    myflag      = ARGV[4]
 
     Scan()
     Show()
