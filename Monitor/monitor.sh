@@ -69,7 +69,7 @@ fi
 
 
 #./countdown.sh "${si}" "${moni_itf}" & result=`awk -f monitor.awk "${moni_itf}" "${target_addr}" "${si}"`
-result=`awk -f monitor.awk "${moni_itf}" "${target_addr}" "${si}" ${myflag}"`
+result=`awk -f monitor.awk "${moni_itf}" "${target_addr}" "${si}" "${myflag}"`
 wait
 
 if [ $writeFlag -eq 1 ]; then
