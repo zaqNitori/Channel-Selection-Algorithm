@@ -21,15 +21,35 @@ echo "----------monitor.sh----------" >> "${logFile}"
 moni_itf=""
 target_itf=""
 si=10
+myflag=""
 writeFile=""
 writeFlag=0
 
-while getopts m:t:s:w: flag
+while getopts m:t:s:v:b:a:w: flag
 do
     case "${flag}" in
         m) moni_itf=${OPTARG};;
-        t) target_itf=${OPTARG};;
         s) si=${OPTARG};;
+        t) 
+            target_itf=${OPTARG}
+            myflag="t"
+            # Scan for specific target
+            ;;
+        v)
+            target_itf=${OPTARG}
+            myflag="v"
+            # Scan except specific target
+            ;;
+        b)
+            target_itf=${OPTARG}
+            myflag="b"
+            # Scan everything but seperate target and untarget
+            ;;
+        a)
+            target_itf=${OPTARG}
+            myflag="a"
+            # Scan everything
+            ;;
         w)
             writeFile=${OPTARG}
             writeFlag=1
@@ -44,14 +64,12 @@ if [ "${moni_itf}" == "" ]; then
 fi
 
 if [ "${target_itf}" == "" ]; then
-    echo "Please give target interface!"
-    exit 0
+    target_addr=`awk -f Get_Interface_Addr.awk "${target_itf}"`
 fi
 
-target_addr=`awk -f Get_Interface_Addr.awk "${target_itf}"`
 
 #./countdown.sh "${si}" "${moni_itf}" & result=`awk -f monitor.awk "${moni_itf}" "${target_addr}" "${si}"`
-result=`awk -f monitor.awk "${moni_itf}" "${target_addr}" "${si}"`
+result=`awk -f monitor.awk "${moni_itf}" "${target_addr}" "${si}" ${myflag}"`
 wait
 
 if [ $writeFlag -eq 1 ]; then
