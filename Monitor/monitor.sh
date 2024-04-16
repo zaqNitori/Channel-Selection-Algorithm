@@ -20,12 +20,12 @@ echo "----------monitor.sh----------" >> "${logFile}"
 
 moni_itf=""
 target_itf=""
-si=10
+si=5
 myflag=""
 writeFile=""
 writeFlag=0
 
-while getopts m:t:s:v:b:a:w: flag
+while getopts :m:t:s:v:b:a:w: flag
 do
     case "${flag}" in
         m) moni_itf=${OPTARG};;
@@ -46,7 +46,6 @@ do
             # Scan everything but seperate target and untarget
             ;;
         a)
-            target_itf=${OPTARG}
             myflag="a"
             # Scan everything
             ;;
@@ -63,7 +62,7 @@ if [ "${moni_itf}" == "" ]; then
     exit 0
 fi
 
-if [ "${target_itf}" == "" ]; then
+if [ "${target_itf}" != "" ]; then
     target_addr=`awk -f Get_Interface_Addr.awk "${target_itf}"`
 fi
 
