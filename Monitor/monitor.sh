@@ -14,7 +14,8 @@ if [ $res -ne 0 ]; then
     exit 0
 fi
 
-cd ~/cs/Monitor
+path=`pwd`
+cd "${path}"
 logFile="logMonitor"
 echo "----------monitor.sh----------" >> "${logFile}"
 

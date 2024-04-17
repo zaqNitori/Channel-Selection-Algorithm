@@ -5,8 +5,8 @@
 # and combine them to show a more precisely channel measurement.
 #
 
-cd ~/cs/Scan
-logFile="logCS"
+path=`pwd`
+cd "${path}"
 echo "----------Channel_Selection.sh----------" >> "${logFile}"
 
 # Show help messages
