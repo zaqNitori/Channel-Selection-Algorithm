@@ -11,19 +11,19 @@ function Get_Flag_Cmd() {
 
     if(myflag == "t") {
         # Scan for specific target
-        flag_cmd = " | grep \""target_addr"\""
+        cmd = cmd" | grep \""target_addr"\""
     }
     else if(myflag == "v") {
         # Scan except specific target
-        flag_cmd = " | grep -v \""target_addr"\""
+        cmd = cmd" | grep -v \""target_addr"\""
     }
     else if(myflag == "b") {
         # Scan everything but seperate target and non-target
-        flag_cmd = ""
+        cmd = cmd
     }
     else {
         # Scan everything
-        flag_cmd = ""
+        cmd = cmd
     }
 
 }
@@ -39,11 +39,10 @@ function Scan() {
 
     cmd = "tcpdump -ne -y ieee802_11_radio -i "moni_itf" -e -B 100000"
     Get_Flag_Cmd()
-    cmd = cmd""flag_cmd
-    
+
     # Reading Result of Tcpdump
     while(cmd | getline) {
-        
+
         # Check if our info exists
         pos = index($0, "!")
         if(pos == 0) continue
@@ -120,7 +119,7 @@ function Show() {
     if(dura > 0)
         ug_sig = 10 * (log(joule / duration) / log(10))
 
-    printf "%d, %d, %d, %d", total_amount, total_size, usage, ug_sig
+    printf "%d, %d, %d, %d\n", total_amount, total_size, usage, ug_sig
 
 }
 
