@@ -66,8 +66,6 @@ if [ "${target_itf}" != "" ]; then
     target_addr=`awk -f Get_Interface_Addr.awk "${target_itf}"`
 fi
 
-
-#./countdown.sh "${si}" "${moni_itf}" & result=`awk -f monitor.awk "${moni_itf}" "${target_addr}" "${si}"`
 result=`awk -f monitor.awk "${moni_itf}" "${target_addr}" "${si}" "${myflag}"`
 wait
 

@@ -1,7 +1,5 @@
 #!/bin/ash
 
-path="~/cs/"
-
 # Get input
 ft=$1
 si=$2
