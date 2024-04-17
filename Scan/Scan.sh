@@ -7,6 +7,7 @@
 
 path=`pwd`
 cd "${path}"
+logFile="logCS"
 echo "----------Channel_Selection.sh----------" >> "${logFile}"
 
 # Show help messages
