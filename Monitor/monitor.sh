@@ -17,7 +17,8 @@ fi
 path=`pwd`
 cd "${path}"
 logFile="logMonitor"
-echo "----------monitor.sh----------" >> "${logFile}"
+echo "----------Start monitor.sh----------" >> "${logFile}"
+echo cd "${path}" >> "${logFile}"
 
 moni_itf=""
 target_itf=""
@@ -67,6 +68,7 @@ if [ "${target_itf}" != "" ]; then
     target_addr=`awk -f Get_Interface_Addr.awk "${target_itf}"`
 fi
 
+echo awk -f monitor.awk "${moni_itf}" "${target_addr}" "${si}" "${myflag}" >> "${logFile}"
 result=`awk -f monitor.awk "${moni_itf}" "${target_addr}" "${si}" "${myflag}"`
 wait
 
@@ -77,5 +79,5 @@ else
     echo "${result}"
 fi
 
-echo "----------monitor.sh----------" >> "${logFile}"
 echo "Monitor Finish!!" | tee -a "${logFile}"
+echo "----------End monitor.sh----------" >> "${logFile}"
