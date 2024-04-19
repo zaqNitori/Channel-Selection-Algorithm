@@ -26,23 +26,23 @@ myflag=""
 writeFile=""
 writeFlag=0
 
-while getopts :m:t:s:v:b:a:w: flag
+# put ':' befind char if there are some  input parameters come with that char
+while getopts ":c:s:i:m:w:tvba" flag
 do
     case "${flag}" in
-        m) moni_itf=${OPTARG};;
+        c) moni_itf=${OPTARG};;
         s) si=${OPTARG};;
+        i) target_itf=${OPTARG};;
+        m) target_addr=${OPTARG};;
         t) 
-            target_itf=${OPTARG}
             myflag="t"
             # Scan for specific target
             ;;
         v)
-            target_itf=${OPTARG}
             myflag="v"
             # Scan except specific target
             ;;
         b)
-            target_itf=${OPTARG}
             myflag="b"
             # Scan everything but seperate target and untarget
             ;;
