@@ -148,17 +148,25 @@ function Show() {
     if(myflag == "b") {
         {
             usage[0] = (duration[0]) / (10000 * interval) + 0.5
-            ug_sig = -100
-            if(duration[0] > 0)
-                ug_sig = 10 * (log(joule[0] / duration[0]) / log(10))
 
+            ug_sig = -100
+            if(duration[0] > 0) {
+                ug_sig = 10 * (log(joule[0] / duration[0]) / log(10))
+                if(ug_sig < -100)
+                    ug_sig = -100
+            }
+            
             printf "non-tg\t%d, %d, %d, %d\n", total_amount[0], total_size[0], usage[0], ug_sig
         }
         {
             usage[1] = (duration[1]) / (10000 * interval) + 0.5
+
             ug_sig = -100
-            if(duration[1] > 0)
+            if(duration[1] > 0) {
                 ug_sig = 10 * (log(joule[1] / duration[1]) / log(10))
+                if(ug_sig < -100)
+                    ug_sig = -100
+            }
 
             printf "tg\t%d, %d, %d, %d\n", total_amount[1], total_size[1], usage[1], ug_sig
         }
@@ -175,6 +183,8 @@ function Show() {
         ug_sig = -100
         if(duration > 0)
             ug_sig = 10 * (log(joule / duration) / log(10))
+            if(ug_sig < -100)
+                ug_sig = -100
 
         printf "%d, %d, %d, %d\n", total_amount, total_size, usage, ug_sig
     }
