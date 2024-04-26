@@ -20,8 +20,9 @@ logFile="logMonitor"
 echo "----------Start monitor.sh----------" >> "${logFile}"
 echo cd "${path}" >> "${logFile}"
 
+tmp=""
 moni_itf=""
-target_itf=""
+target=""
 si=5
 myflag=""
 writeFile=""
@@ -33,8 +34,11 @@ do
     case "${flag}" in
         c) moni_itf=${OPTARG};;
         s) si=${OPTARG};;
-        i) target_itf=${OPTARG};;
-        m) target_addr=${OPTARG};;
+        i) target=${OPTARG};;
+        m) 
+            tmp=${OPTARG}
+            target=`awk -f Get_Interface_Addr.awk "${tmp}"`
+            ;;
         t) 
             myflag="t"
             # Scan for specific target
@@ -64,12 +68,8 @@ if [ "${moni_itf}" == "" ]; then
     exit 0
 fi
 
-if [ "${target_itf}" != "" ]; then
-    target_addr=`awk -f Get_Interface_Addr.awk "${target_itf}"`
-fi
-
-echo awk -f monitor.awk "${moni_itf}" "${target_addr}" "${si}" "${myflag}" >> "${logFile}"
-result=`awk -f monitor.awk "${moni_itf}" "${target_addr}" "${si}" "${myflag}"`
+echo awk -f monitor.awk "${moni_itf}" "${target}" "${si}" "${myflag}" >> "${logFile}"
+result=`awk -f monitor.awk "${moni_itf}" "${target}" "${si}" "${myflag}"`
 wait
 
 if [ $writeFlag -eq 1 ]; then
