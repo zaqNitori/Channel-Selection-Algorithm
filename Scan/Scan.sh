@@ -98,8 +98,8 @@ else
 fi
 
 # Announce that this script is finished
-echo "----------Channel_Selection.sh----------" >> "${logFile}"
-echo "CS Finish!!" | tee -a "${logFile}"
+echo "Scan Finish!!" | tee -a "${logFile}"
+echo "----------End Scan.sh----------" >> "${logFile}"
 
 
 
