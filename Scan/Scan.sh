@@ -37,7 +37,7 @@ writeFile=""
 writeFlag=0
 
 # Get Setting From Option Arguments
-while getopts i:s:f:p:d:w: flag
+while getopts s:f:p:d:w:h flag
 do
     case "${flag}" in
         p) phy=${OPTARG};;
