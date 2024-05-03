@@ -26,15 +26,18 @@ function Initial() {
         freq2chan[phy, freq]       = chan
         chan2freq[phy, chan]       = freq
         amount[phy, chan, "Total"] = 0
-        amount[phy, chan, "Mgmt"]  = 0
-        amount[phy, chan, "Ctrl"]  = 0
-        amount[phy, chan, "Data"]  = 0
         size[phy, chan, "Total"]   = 0
-        size[phy, chan, "Mgmt"]    = 0
-        size[phy, chan, "Ctrl"]    = 0
-        size[phy, chan, "Data"]    = 0
         duration[phy, chan]        = 0
         joule[phy, chan]           = 0
+
+        if(debug) {
+            amount[phy, chan, "Mgmt"]  = 0
+            amount[phy, chan, "Ctrl"]  = 0
+            amount[phy, chan, "Data"]  = 0
+            size[phy, chan, "Mgmt"]    = 0
+            size[phy, chan, "Ctrl"]    = 0
+            size[phy, chan, "Data"]    = 0
+        }
     }
     close(cmd)
 }
@@ -63,11 +66,15 @@ function Scan() {
 
         # Counting the frame amounts
         amount[phy, chan, "Total"]++
-        amount[phy, chan, type]++
+        if(debug) {
+            amount[phy, chan, type]++
+        }
 
         # Collecting the frame sizes
         size[phy, chan, "Total"] += size + 0
-        size[phy, chan, type] += size + 0
+        if(debug) {
+            size[phy, chan, type] += size + 0
+        }
 
         # Collecting the duration
         duration[phy, chan] += dura
@@ -80,9 +87,9 @@ function Scan() {
             tmp = substr($0, pos - 4, 4)
             cnt = split(tmp, sig, " ")
             if(cnt == 1)
-                    dbm = (sig[1] + 0)
+                dbm = (sig[1] + 0)
             else
-                    dbm = (sig[2] + 0)
+                dbm = (sig[2] + 0)
             
             watt = 10 ^ (dbm / 10.0)
             joule[phy, chan] += dura * watt
@@ -102,15 +109,19 @@ function Show() {
 
         # Get Frame Amount
         ta = amount[phy, chan, "Total"]
-        ma = amount[phy, chan, "Mgmt"]
-        ca = amount[phy, chan, "Ctrl"]
-        da = amount[phy, chan, "Data"]
+        if(debug) {
+            ma = amount[phy, chan, "Mgmt"]
+            ca = amount[phy, chan, "Ctrl"]
+            da = amount[phy, chan, "Data"]
+        }
         
         # Get Frame Size
         ts = size[phy, chan, "Total"]
-        ms = size[phy, chan, "Mgmt"]
-        cs = size[phy, chan, "Ctrl"]
-        ds = size[phy, chan, "Data"]
+        if(debug) {
+            ms = size[phy, chan, "Mgmt"]
+            cs = size[phy, chan, "Ctrl"]
+            ds = size[phy, chan, "Data"]
+        }
 
         # Get duration and calculate usage
         # Plus 0.5 to do rounding
@@ -125,7 +136,15 @@ function Show() {
         else
             ug_sig = -100
 
-        printf "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d!", freq, chan, ta, ts, ma, ms, ca, cs, da, ds, usage, ug_sig
+        if(debug) {
+            # print all data
+            printf "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d!", freq, chan, ta, ts, ma, ms, ca, cs, da, ds, usage, ug_sig
+
+        }
+        else {
+            # print only needed data
+            printf "%d,%d,%d,%d,%d,%d!", freq, chan, ta, ts, usage, ug_sig
+        }
     }
 
 }
@@ -134,6 +153,7 @@ BEGIN {
     phy       = ARGV[1]
     interface = ARGV[2]
     interval  = ARGV[3]
+    debug     = ARGV[4]
 
     Initial()
     Scan()

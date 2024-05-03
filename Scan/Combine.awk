@@ -36,15 +36,19 @@ function seperate_FrameInfo() {
 
         # Store Frame Amount
         amount[freq, chan, "Total"] = info[3]
-        amount[freq, chan, "Mgmt"] = info[5]
-        amount[freq, chan, "Ctrl"] = info[7]
-        amount[freq, chan, "Data"] = info[9]
+        if(debug) {
+            amount[freq, chan, "Mgmt"] = info[5]
+            amount[freq, chan, "Ctrl"] = info[7]
+            amount[freq, chan, "Data"] = info[9]
+        }
         
         # Store Frame Size
         size[freq, chan, "Total"] = info[4]
-        size[freq, chan, "Mgmt"] = info[6]
-        size[freq, chan, "Ctrl"] = info[8]
-        size[freq, chan, "Data"] = info[10]
+        if(debug) {
+            size[freq, chan, "Mgmt"] = info[6]
+            size[freq, chan, "Ctrl"] = info[8]
+            size[freq, chan, "Data"] = info[10]
+        }
 
         # Store Usage
         usage[freq, chan] = info[11]
@@ -55,6 +59,34 @@ function seperate_FrameInfo() {
 }
 
 function show() {
+
+    for(tmp in freq2chan) {
+        split(tmp, fc, SUBSEP)
+
+        freq = fc[1]
+        chan = freq2chan[freq]
+        sig = out[freq, chan, "dbm"]
+        aps = out[freq, chan, "aps"]
+
+        # Store Frame Amount
+        ta = amount[freq, chan, "Total"]
+        
+        # Store Frame Size
+        ts = size[freq, chan, "Total"]
+
+        # Store channel usage
+        ug = usage[freq, chan] 
+
+        # Store avg dbm during duration time
+        ug_sig = usage_Signal[freq, chan]
+
+        # show output in the ascending order
+        printf "%d,%d,%d,%d,%d,%d,%d,%d!", freq, chan, sig, aps, ta, ts, ug, ug_sig
+    }
+
+}
+
+function show_debug() {
     cmd = "sort -n"
 
     # format the output
@@ -95,11 +127,17 @@ function show() {
 
 
 BEGIN {
-    effect = ARGV[1]
+    effect     = ARGV[1]
     frame_info = ARGV[2]
-    interval = ARGV[3]
+    debug      = ARGV[3]
 
     seperate_Effect()
     seperate_FrameInfo()
-    show()
+
+    if(debug) {
+        show_debug()
+    }
+    else {
+        show()
+    }
 }
