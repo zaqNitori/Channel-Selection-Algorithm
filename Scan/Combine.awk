@@ -37,24 +37,27 @@ function seperate_FrameInfo() {
         # Store Frame Amount
         amount[freq, chan, "Total"] = info[3]
         if(debug) {
-            amount[freq, chan, "Mgmt"] = info[5]
-            amount[freq, chan, "Ctrl"] = info[7]
-            amount[freq, chan, "Data"] = info[9]
+            amount[freq, chan, "Mgmt"] = info[8]
+            amount[freq, chan, "Ctrl"] = info[10]
+            amount[freq, chan, "Data"] = info[12]
         }
         
         # Store Frame Size
         size[freq, chan, "Total"] = info[4]
         if(debug) {
-            size[freq, chan, "Mgmt"] = info[6]
-            size[freq, chan, "Ctrl"] = info[8]
-            size[freq, chan, "Data"] = info[10]
+            size[freq, chan, "Mgmt"] = info[9]
+            size[freq, chan, "Ctrl"] = info[11]
+            size[freq, chan, "Data"] = info[13]
         }
 
         # Store Usage
-        usage[freq, chan] = info[11]
+        usage[freq, chan] = info[5]
 
         # Store Avg dBm during usage
-        usage_Signal[freq, chan] = info[12]
+        usage_Signal[freq, chan] = info[6]
+
+        # Store Joule
+        joule[freq, chan] = info[7]
     }
 }
 
@@ -80,8 +83,11 @@ function show() {
         # Store avg dbm during duration time
         ug_sig = usage_Signal[freq, chan]
 
+        # Store joule
+        j = joule[freq, chan]
+
         # show output in the ascending order
-        printf "%d,%d,%d,%d,%d,%d,%d,%d!", freq, chan, sig, aps, ta, ts, ug, ug_sig
+        printf "%d,%d,%d,%d,%d,%d,%d,%d,%d!", freq, chan, sig, aps, ta, ts, ug, ug_sig, j
     }
 
 }
@@ -90,7 +96,7 @@ function show_debug() {
     cmd = "sort -n"
 
     # format the output
-    printf "Freq\tChannel\tSignal\tAPs\tTotal_A\tTotal_S\tMgmt_A\tMgmt_S\tCtrl_A\tCtrl_S\tData_A\tData_S\tUsage\tU_Sig\n"
+    printf "Freq\tChannel\tSignal\tAPs\tTotal_A\tTotal_S\tUsage\tU_Sig\tJoule\tMgmt_A\tMgmt_S\tCtrl_A\tCtrl_S\tData_A\tData_S\n"
 
     for(tmp in freq2chan) {
         split(tmp, fc, SUBSEP)
@@ -118,8 +124,11 @@ function show_debug() {
         # Store avg dbm during duration time
         ug_sig = usage_Signal[freq, chan]
 
+        # Store joule
+        j = joule[freq, chan]
+
         # show output in the ascending order
-        printf "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", freq, chan, sig, aps, ta, ts, ma, ms, ca, cs, da, ds, ug, ug_sig | cmd
+        printf "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", freq, chan, sig, aps, ta, ts, ug, ug_sig, j, ma, ms, ca, cs, da, ds | cmd
     }
 
     close(cmd)

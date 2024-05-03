@@ -138,12 +138,12 @@ function Show() {
 
         if(debug) {
             # print all data
-            printf "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d!", freq, chan, ta, ts, ma, ms, ca, cs, da, ds, usage, ug_sig
+            printf "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d!", freq, chan, ta, ts, usage, ug_sig, j, ma, ms, ca, cs, da, ds
 
         }
         else {
             # print only needed data
-            printf "%d,%d,%d,%d,%d,%d!", freq, chan, ta, ts, usage, ug_sig
+            printf "%d,%d,%d,%d,%d,%d,%d!", freq, chan, ta, ts, usage, ug_sig, j
         }
     }
 
