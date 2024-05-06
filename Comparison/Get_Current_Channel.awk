@@ -11,14 +11,15 @@ function Get_channel() {
 
     # Get target interface addr so that we can scan with grep
     while(cmd | getline) {
-        if($2 == target_itf) {
-            target = "Y"
-            continue
-        }
-        
-        if(target != "" && $1 == "Interface") {
-            chan = 0
-            break
+
+        pos = index($1, "#")
+        if(pos != 0) {
+            split($1, s, "#")
+            tmp=s[1] s[2]
+            if(phy == tmp) {
+                target = "Y"
+                continue
+            }
         }
 
         # speed up
@@ -35,7 +36,7 @@ function Get_channel() {
 }
 
 BEGIN {
-    target_itf = ARGV[1]
+    phy = ARGV[1]
 
     Get_channel()
 }
