@@ -16,6 +16,8 @@ function get_iwphy() {
 			chan = gensub(/^.*\[([0-9]+)\].*$/, "\\1", 1, $0)
 			iwphy[phy, freq, "band"] = band
 			iwphy[phy, freq, "chan"] = chan
+			iwphy[phy_conf, freq, "aps"] = 0
+			iwphy[phy, freq, "avg_dbm"] = -100
 		}
 	}
 	close(cmd)
@@ -58,11 +60,11 @@ function get_iwscan() {
 		
 		if((cnt % 2) == 0) {
 			freq = $2
-			aps = iwphy[phy_conf, freq, "aps"]
+			aps = iwphy[phy_conf, freq, "aps"] + 0
 
 			# Store the number of APs
 			aps += 1
-			iwphy[phy_conf, freq, "aps"] = aps
+			iwphy[phy_conf, freq, "aps"] = aps + 0
 		}
 		else {
 			signal = $2
@@ -90,7 +92,6 @@ function calculate_avg_dbm() {
 		aps = iwphy[phy, freq, "aps"]
 		watt = iwphy[phy, freq, "watt"]
 		if(aps == 0) {
-			iwphy[phy, freq, "avg_dbm"] = -100
 			continue
 		}
 		avg_watt = watt * 1.0 / aps
@@ -110,6 +111,10 @@ function my_output() {
 		chan = iwphy[phy, freq, "chan"]
 		avg_dbm = iwphy[phy, freq, "avg_dbm"]
 		aps = iwphy[phy, freq, "aps"]
+
+		#if((aps + 0) == 0)
+		#	avg_dbm = -100
+
 		if(band != band_conf) continue
 
 		if(phy == "phy0" && (chan+0) > 11)
