@@ -40,14 +40,14 @@ function Scan() {
         total_size[1]   = 0
         duration[0]     = 0
         duration[1]     = 0
-        joule[0]        = 0
-        joule[1]        = 0
+        joule[0]        = 0.0
+        joule[1]        = 0.0
     }
     else {
         total_amount = 0
         total_size   = 0
         duration     = 0
-        joule        = 0
+        joule        = 0.0
     }
 
     cmd = "tcpdump -ne -y ieee802_11_radio -i "moni_itf" -e -B 100000"
@@ -156,7 +156,7 @@ function Show() {
                     ug_sig = -100
             }
             
-            printf "non-tg\t%d, %d, %d, %d\n", total_amount[0], total_size[0], usage[0], ug_sig
+            printf "non-tg\t%d, %d, %d, %d, %.3f\n", total_amount[0], total_size[0], usage[0], ug_sig, joule[0]
         }
         {
             usage[1] = (duration[1]) / (10000 * interval) + 0.5
@@ -168,7 +168,7 @@ function Show() {
                     ug_sig = -100
             }
 
-            printf "tg\t%d, %d, %d, %d\n", total_amount[1], total_size[1], usage[1], ug_sig
+            printf "tg\t%d, %d, %d, %d, %.3f\n", total_amount[1], total_size[1], usage[1], ug_sig, joule[1]
         }
     }
     else {
@@ -186,7 +186,7 @@ function Show() {
             if(ug_sig < -100)
                 ug_sig = -100
 
-        printf "%d, %d, %d, %d\n", total_amount, total_size, usage, ug_sig
+        printf "%d, %d, %d, %d, %.3f\n", total_amount, total_size, usage, ug_sig, joule
     }
 
 }
