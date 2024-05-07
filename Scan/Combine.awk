@@ -87,7 +87,7 @@ function show() {
         j = joule[freq, chan]
 
         # show output in the ascending order
-        printf "%d,%d,%d,%d,%d,%d,%d,%d,%d!", freq, chan, sig, aps, ta, ts, ug, ug_sig, j
+        printf "%d,%d,%d,%d,%d,%d,%d,%d,%.3f!", freq, chan, sig, aps, ta, ts, ug, ug_sig, j
     }
 
 }
@@ -128,7 +128,7 @@ function show_debug() {
         j = joule[freq, chan]
 
         # show output in the ascending order
-        printf "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", freq, chan, sig, aps, ta, ts, ug, ug_sig, j, ma, ms, ca, cs, da, ds | cmd
+        printf "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%.3f\t%d\t%d\t%d\t%d\t%d\t%d\n", freq, chan, sig, aps, ta, ts, ug, ug_sig, j, ma, ms, ca, cs, da, ds | cmd
     }
 
     close(cmd)
