@@ -28,7 +28,7 @@ function Initial() {
         amount[phy, chan, "Total"] = 0
         size[phy, chan, "Total"]   = 0
         duration[phy, chan]        = 0
-        joule[phy, chan]           = 0
+        joule[phy, chan]           = 0.0
 
         if(debug) {
             amount[phy, chan, "Mgmt"]  = 0
@@ -138,12 +138,12 @@ function Show() {
 
         if(debug) {
             # print all data
-            printf "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d!", freq, chan, ta, ts, usage, ug_sig, j, ma, ms, ca, cs, da, ds
+            printf "%d,%d,%d,%d,%d,%d,%.3f,%d,%d,%d,%d,%d,%d!", freq, chan, ta, ts, usage, ug_sig, j, ma, ms, ca, cs, da, ds
 
         }
         else {
             # print only needed data
-            printf "%d,%d,%d,%d,%d,%d,%d!", freq, chan, ta, ts, usage, ug_sig, j
+            printf "%d,%d,%d,%d,%d,%d,%.3f\n", freq, chan, ta, ts, usage, ug_sig, j
         }
     }
 
