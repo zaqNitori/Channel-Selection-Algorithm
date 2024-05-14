@@ -35,7 +35,8 @@ function extract_data() {
 
 # Firstly, we will use Interfere RSSI to determine which channel is better
 # If both chans have similar Interfere RSSI, then we will use Eff_Sig to further compare
-function first_compare() {
+# We only comapred with RSSI, no further calculation in this step
+function RSSI_Compare() {
 
     # Get value for current channel
     cur_ugsig = data[cur_chan, "ugsig"]
@@ -82,5 +83,5 @@ BEGIN {
 
     definition()
     extract_data()
-    first_compare()
+    RSSI_Compare()
 }
