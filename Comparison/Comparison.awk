@@ -3,9 +3,15 @@
 # Split input first and then do comapred to search for better channel
 #
 
+# Define which area belongs to H M and L, according to RSSI_Throughput experiment result
+function definition() {
+    RSSI_HIGH_EDGE = -45
+    RSSI_MEDIUM_EDGE = -55
+}
+
 function extract_data() {
     # Split the original String to get each channel
-    n = split(_input, tmp, "!")
+    n = split(scan_result, tmp, "!")
 
     # for loop the array
     for(i = 1; i < n; i++) {
@@ -33,15 +39,6 @@ function first_compare() {
 
     # Get value for current channel
     cur_ugsig = data[cur_chan, "ugsig"]
-    
-    # TODO: Change L with specific RSSI value (dBm)
-    # cur_ugsig < ??
-    # Current channel is clean, so we don't need to do CS.
-    if(cur_ugsig == "L") {
-        print 0
-        return
-    }
-
 
     for(chan in channels) {
 
@@ -50,10 +47,9 @@ function first_compare() {
 
         ugsig = data[chan, "ugsig"]
 
-        # TODO: Change H with specific RSSI value (dBm)
-        # ugsig > ??
-        # Other channel's interfere RSSI is higher
-        if(ugsig == "H" || cur_ugsig < ugsig)
+
+        # Other channel's interfere RSSI is higher or is H
+        if(ugsig >= RSSI_HIGH_EDGE || cur_ugsig < ugsig)
             continue
 
         # Other channel's interfere RSSI is lower
@@ -81,9 +77,10 @@ function first_compare() {
 
 
 BEGIN {
-    _input   = ARGV[1]
+    scan_result   = ARGV[1]
     cur_chan = ARGV[2]
 
+    definition()
     extract_data()
     first_compare()
 }
