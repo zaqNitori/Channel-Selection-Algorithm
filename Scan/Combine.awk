@@ -25,6 +25,7 @@ function seperate_Effect() {
 function seperate_FrameInfo() {
     # Split the original String to get each channel
     n = split(frame_info, tmp, "!")
+    fix_parameter = 8
 
     # for loop the array
     for( i = 1; i < n; i++) {
@@ -37,17 +38,17 @@ function seperate_FrameInfo() {
         # Store Frame Amount
         amount[freq, chan, "Total"] = info[3]
         if(debug) {
-            amount[freq, chan, "Mgmt"] = info[8]
-            amount[freq, chan, "Ctrl"] = info[10]
-            amount[freq, chan, "Data"] = info[12]
+            amount[freq, chan, "Mgmt"] = info[fix_parameter + 1]
+            amount[freq, chan, "Ctrl"] = info[fix_parameter + 3]
+            amount[freq, chan, "Data"] = info[fix_parameter + 5]
         }
         
         # Store Frame Size
         size[freq, chan, "Total"] = info[4]
         if(debug) {
-            size[freq, chan, "Mgmt"] = info[9]
-            size[freq, chan, "Ctrl"] = info[11]
-            size[freq, chan, "Data"] = info[13]
+            size[freq, chan, "Mgmt"] = info[fix_parameter + 2]
+            size[freq, chan, "Ctrl"] = info[fix_parameter + 4]
+            size[freq, chan, "Data"] = info[fix_parameter + 6]
         }
 
         # Store Usage
@@ -58,6 +59,9 @@ function seperate_FrameInfo() {
 
         # Store Joule
         joule[freq, chan] = info[7]
+
+        # Store Number of Devs
+        numDev[freq, chan] = info[8]
     }
 }
 
@@ -86,8 +90,11 @@ function show() {
         # Store joule
         j = joule[freq, chan]
 
+        # Store number of Dev
+        devs = numDev[freq, chan]
+
         # show output in the ascending order
-        printf "%d,%d,%d,%d,%d,%d,%d,%d,%.3f!", freq, chan, sig, aps, ta, ts, ug, ug_sig, j
+        printf "%d,%d,%d,%d,%d,%d,%d,%d,%.3f,%d!", freq, chan, sig, aps, ta, ts, ug, ug_sig, j, devs
     }
 
 }
@@ -96,7 +103,7 @@ function show_debug() {
     cmd = "sort -n"
 
     # format the output
-    printf "Freq\tChannel\tSignal\tAPs\tTotal_A\tTotal_S\tUsage\tU_Sig\tJoule\tMgmt_A\tMgmt_S\tCtrl_A\tCtrl_S\tData_A\tData_S\n"
+    printf "Freq\tChannel\tSignal\tAPs\tTotal_A\tTotal_S\tUsage\tU_Sig\tJoule\tDevs\tMgmt_A\tMgmt_S\tCtrl_A\tCtrl_S\tData_A\tData_S\n"
 
     for(tmp in freq2chan) {
         split(tmp, fc, SUBSEP)
@@ -127,8 +134,11 @@ function show_debug() {
         # Store joule
         j = joule[freq, chan]
 
+        # Store number of Dev
+        devs = numDev[freq, chan]
+
         # show output in the ascending order
-        printf "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%.3f\t%d\t%d\t%d\t%d\t%d\t%d\n", freq, chan, sig, aps, ta, ts, ug, ug_sig, j, ma, ms, ca, cs, da, ds | cmd
+        printf "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%.3f\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", freq, chan, sig, aps, ta, ts, ug, ug_sig, j, devs, ma, ms, ca, cs, da, ds | cmd
     }
 
     close(cmd)
