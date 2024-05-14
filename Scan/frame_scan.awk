@@ -40,10 +40,30 @@ function Initial() {
         }
     }
     close(cmd)
+
+    Extract_MAC_Key[0] = "SA:"
+    Extract_MAC_Key[1] = "TA:"
+}
+
+# Initialize Array, and add broadcast MAC Addr.
+function Initial_MAC_Record() {
+    mac_record["ff:ff:ff:ff:ff:ff"] = 1
+}
+
+# Count how much devices on each channel
+# Should Minus broadcast mac addr
+function Calculate_MAC_Record() {
+    dev = -1
+    for(i in mac_record) {
+        dev += 1
+    }
+    numDev[chan] = dev
+    delete mac_record
 }
 
 function Scan() {
     
+    pre_freq = 0
     cmd = "tcpdump -ne -y ieee802_11_radio -i "interface" -v -t -s0 -e | grep \"!\""
 
     # Reading Result of Tcpdump
@@ -53,8 +73,39 @@ function Scan() {
 
         # Extract the freq
         freq = substr($0, pos-5, 4)
+        if(pre_freq != freq) {
+            if(pre_freq != 0)
+                Calculate_MAC_Record()
+
+            Initial_MAC_Record()
+            pre_freq = freq
+        }
         chan = freq2chan[phy, freq]
         if(chan == 14) continue
+
+        # Record MAC Addr to calculate how much diff devices on each channel
+        # BSSID, SA, DA, RA, TA
+        # Only consider SA and TA since they are the actual sender
+        {
+            for(i in Extract_MAC_Key) {
+
+                # Get Key
+                key = Extract_MAC_Key[i]
+
+                # Get Position
+                pos = index($0, key)
+                if(pos == 0) continue
+
+                # Extract MAC Addr
+                mac = substr($0, pos+3, 17)
+
+                # Record
+                if(mac_record[mac] == 0) {
+                    mac_record[mac] = 1
+                }
+            }
+        }
+
 
         # Extract type and size
         # awk starts from index 1
@@ -96,6 +147,9 @@ function Scan() {
         }
     }
     close(cmd)
+
+    # Last channel will not be calculate, so should call again
+    Calculate_MAC_Record()
 }
 
 function Show() {
@@ -136,14 +190,16 @@ function Show() {
         else
             ug_sig = -100
 
+        devs = numDev[chan]
+
         if(debug) {
             # print all data
-            printf "%d,%d,%d,%d,%d,%d,%.3f,%d,%d,%d,%d,%d,%d!", freq, chan, ta, ts, usage, ug_sig, j, ma, ms, ca, cs, da, ds
+            printf "%d,%d,%d,%d,%d,%d,%.3f,%d,%d,%d,%d,%d,%d,%d!", freq, chan, ta, ts, usage, ug_sig, j, devs, ma, ms, ca, cs, da, ds
 
         }
         else {
             # print only needed data
-            printf "%d,%d,%d,%d,%d,%d,%.3f\n", freq, chan, ta, ts, usage, ug_sig, j
+            printf "%d,%d,%d,%d,%d,%d,%.3f,%d\n", freq, chan, ta, ts, usage, ug_sig, j, devs
         }
     }
 
