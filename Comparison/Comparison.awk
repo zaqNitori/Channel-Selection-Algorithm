@@ -22,14 +22,13 @@ function extract_data() {
         #freq2chan[s[1]] = s[2]
         channels[s[2]] = s[2]
 
-        # store values and can use freq + chan to get them
-        data[s[2], "eff_sig"] = s[3]
-        data[s[2], "eff_aps"] = s[4]
-        data[s[2], "ta"] = s[5]
-        data[s[2], "ts"] = s[6]
-        data[s[2], "usage"] = s[7]
-        data[s[2], "ugsig"] = s[8]
-        data[s[2], "joule"] = s[9]
+        # store values and can use chan to get them
+        data[s[2], "ta"] = s[3]
+        data[s[2], "ts"] = s[4]
+        data[s[2], "usage"] = s[5]
+        data[s[2], "ugsig"] = s[6]
+        data[s[2], "joule"] = s[7]
+        data[s[2], "devs"] = s[8]
     }
 }
 
