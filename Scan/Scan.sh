@@ -66,7 +66,7 @@ fi
 now=$(date +"%Y-%m-%d %H:%M")
 
 # Call iwchan.awk first and then store its output
-effect=`awk -f iwchan.awk show ${phy}`
+# effect=`awk -f iwchan.awk show ${phy}`
 
 # Get interfaces from specific phy
 itf_conf=`awk -f Search_Interface.awk ${phy}`
@@ -88,7 +88,8 @@ wait
 ./Control_Interface.sh u "${non_monitor}" "${monitor}" "${original_chan}" "${debug}"
 
 # Call another awk script to combine the effect and frame_info data
-result=`awk -f Combine.awk "${effect}" "${frame_info}" "${debug}"`
+# result=`awk -f Combine.awk "${effect}" "${frame_info}" "${debug}"`
+result=`awk -f Combine.awk "${frame_info}" "${debug}"`
 
 if [ $writeFlag -eq 1 ]; then
     # echo "${now}" > "${writeFile}"

@@ -3,25 +3,6 @@
 # Combine output data from both scanning file
 #
 
-function seperate_Effect() {
-    # Split the original String to get each channel
-    n = split(effect, ce, "!")
-
-    # for loop the array
-    for( i = 1; i < n; i++) {
-        # split each channel string to get effect data
-        split(ce[i], s, ",")
-
-        # create freq and channel mapping
-        freq2chan[s[1]] = s[2]
-
-        # store dbm and aps values and can use freq + chan to get them
-        out[s[1], s[2], "dbm"] = s[3]
-        out[s[1], s[2], "aps"] = s[4]
-    }
-
-}
-
 function seperate_FrameInfo() {
     # Split the original String to get each channel
     n = split(frame_info, tmp, "!")
@@ -34,6 +15,9 @@ function seperate_FrameInfo() {
         split(tmp[i], info, ",")
         freq = info[1]
         chan = info[2]
+
+        # create freq and channel mapping
+        freq2chan[freq] = chan
 
         # Store Frame Amount
         amount[freq, chan, "Total"] = info[3]
@@ -72,8 +56,6 @@ function show() {
 
         freq = fc[1]
         chan = freq2chan[freq]
-        sig = out[freq, chan, "dbm"]
-        aps = out[freq, chan, "aps"]
 
         # Store Frame Amount
         ta = amount[freq, chan, "Total"]
@@ -94,7 +76,7 @@ function show() {
         devs = numDev[freq, chan]
 
         # show output in the ascending order
-        printf "%d,%d,%d,%d,%d,%d,%d,%d,%.3f,%d!", freq, chan, sig, aps, ta, ts, ug, ug_sig, j, devs
+        printf "%d,%d,%d,%d,%d,%d,%.3f,%d!", freq, chan, ta, ts, ug, ug_sig, j, devs
     }
 
 }
@@ -103,15 +85,13 @@ function show_debug() {
     cmd = "sort -n"
 
     # format the output
-    printf "Freq\tChannel\tSignal\tAPs\tTotal_A\tTotal_S\tUsage\tU_Sig\tJoule\tDevs\tMgmt_A\tMgmt_S\tCtrl_A\tCtrl_S\tData_A\tData_S\n"
+    printf "Freq\tChannel\tTotal_A\tTotal_S\tUsage\tU_Sig\tJoule\tDevs\tMgmt_A\tMgmt_S\tCtrl_A\tCtrl_S\tData_A\tData_S\n"
 
     for(tmp in freq2chan) {
         split(tmp, fc, SUBSEP)
         
         freq = fc[1]
         chan = freq2chan[freq]
-        sig = out[freq, chan, "dbm"]
-        aps = out[freq, chan, "aps"]
         
         # Store Frame Amount
         ta = amount[freq, chan, "Total"]
@@ -138,7 +118,7 @@ function show_debug() {
         devs = numDev[freq, chan]
 
         # show output in the ascending order
-        printf "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%.3f\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", freq, chan, sig, aps, ta, ts, ug, ug_sig, j, devs, ma, ms, ca, cs, da, ds | cmd
+        printf "%d\t%d\t%d\t%d\t%d\t%d\t%.3f\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", freq, chan, ta, ts, ug, ug_sig, j, devs, ma, ms, ca, cs, da, ds | cmd
     }
 
     close(cmd)
@@ -146,11 +126,9 @@ function show_debug() {
 
 
 BEGIN {
-    effect     = ARGV[1]
-    frame_info = ARGV[2]
-    debug      = ARGV[3]
+    frame_info = ARGV[1]
+    debug      = ARGV[2]
 
-    seperate_Effect()
     seperate_FrameInfo()
 
     if(debug) {
@@ -159,4 +137,5 @@ BEGIN {
     else {
         show()
     }
+
 }
