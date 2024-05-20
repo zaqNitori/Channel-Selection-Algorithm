@@ -39,6 +39,7 @@ function RSSI_Compare() {
 
     # Get value for current channel
     cur_ugsig = data[cur_chan, "ugsig"]
+    cur_usage = data[cu_chan, "usage"]
 
     for(chan in channels) {
 
@@ -49,28 +50,15 @@ function RSSI_Compare() {
 
 
         # Other channel's interfere RSSI is higher or is H
-        if(ugsig >= RSSI_HIGH_EDGE || cur_ugsig < ugsig)
+        # if(ugsig >= RSSI_HIGH_EDGE || cur_ugsig < ugsig)
+        if(cur_ugsig < ugsig)
             continue
-
-        # Other channel's interfere RSSI is lower
-        if(cur_ugsig > ugsig) {
+        else if(cur_ugsig > ugsig) {
+            # Other channel's interfere RSSI is lower
             candidate[chan] = chan
             continue
         }
 
-        # MM and LL
-        # Should further use Eff APs and Eff Sig to compare
-        {
-            cur_effsig = data[cur_chan, "eff_sig"]
-            cur_aps = data[cur_chan, "eff_aps"]
-            eff_sig = data[chan, "eff_sig"]
-            eff_aps = data[chan, "eff_aps"]
-
-            if(eff_sig < cur_effsig)
-                candidate[chan] = chan
-            else if(eff_sig == cur_effsig && eff_aps < cur_aps)
-                candidate[chan] = chan
-        }
     } # End for channel
 
 }
