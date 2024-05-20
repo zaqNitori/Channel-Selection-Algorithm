@@ -76,6 +76,27 @@ function RSSI_Compare() {
 
 }
 
+# Secondly, we will try to use other parameters to decide which channel in candidate is the best
+# Involve further calculation
+function second_compare() {
+
+    cur_joule = data[cur_chan, "joule"]
+    cur_usage = data[cur_chan, "usage"]
+
+    for(chan in candidate) {
+
+        joule = data[chan, "joule"]
+
+        # Other channel's receive joule is greater than current channel,
+        # which means that channel's usage is also greater than current channel.
+        if(joule >= cur_joule)
+            continue
+
+
+
+    } # End for candidate
+
+}
 
 BEGIN {
     scan_result   = ARGV[1]
