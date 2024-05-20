@@ -10,7 +10,6 @@ function seperate_FrameInfo() {
 
     # for loop the array
     for( i = 1; i < n; i++) {
-        
         # split each channel string to get amount data
         split(tmp[i], info, ",")
         freq = info[1]
@@ -78,7 +77,6 @@ function show() {
         # show output in the ascending order
         printf "%d,%d,%d,%d,%d,%d,%.3f,%d!", freq, chan, ta, ts, ug, ug_sig, j, devs
     }
-
 }
 
 function show_debug() {
@@ -130,7 +128,6 @@ BEGIN {
     debug      = ARGV[2]
 
     seperate_FrameInfo()
-
     if(debug) {
         show_debug()
     }
