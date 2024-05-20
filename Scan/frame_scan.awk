@@ -209,7 +209,7 @@ function Show() {
         }
         else {
             # print only needed data
-            printf "%d,%d,%d,%d,%d,%d,%.3f,%d\n", freq, chan, ta, ts, usage, ug_sig, j, devs
+            printf "%d,%d,%d,%d,%d,%d,%.3f,%d!", freq, chan, ta, ts, usage, ug_sig, j, devs
         }
     }
 
