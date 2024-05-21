@@ -32,14 +32,14 @@ function extract_data() {
     }
 }
 
-# Firstly, we will use Interfere RSSI to determine which channel is better
-# If both chans have similar Interfere RSSI, then we will use Eff_Sig to further compare
-# We only comapred with RSSI, no further calculation in this step
-function RSSI_Compare() {
+# The rules we use to compare each channel is calculated from truth-table
+# Candidate = !Usage + !UgSig!Devs
+function Choose_Candidate() {
 
     # Get value for current channel
     cur_ugsig = data[cur_chan, "ugsig"]
     cur_usage = data[cu_chan, "usage"]
+    cur_devs = data[cur_chan, "devs"]
 
     for(chan in channels) {
 
@@ -47,42 +47,57 @@ function RSSI_Compare() {
             continue
 
         ugsig = data[chan, "ugsig"]
+        usage = data[chan, "usage"]
+        devs = data[chan, "devs"]
 
-
-        # Other channel's interfere RSSI is higher or is H
-        # if(ugsig >= RSSI_HIGH_EDGE || cur_ugsig < ugsig)
-        if(cur_ugsig < ugsig)
-            continue
-        else if(cur_ugsig > ugsig) {
-            # Other channel's interfere RSSI is lower
+        if(usage < cur_usage) {
+            # Other channel's Usage is less
             candidate[chan] = chan
-            continue
+        }
+        else if(ugsig < cur_ugsig && devs < cur_devs) {
+            # Other channel's UgSig and devs both are less
+            candidate[chan] = chan
         }
 
     } # End for channel
 
 }
 
-# Secondly, we will try to use other parameters to decide which channel in candidate is the best
-# Involve further calculation
-function second_compare() {
+# Foreach chan in candidate, we compare with their joule 
+# and select one chan with the smallest joule value.
+function Compare() {
 
-    cur_joule = data[cur_chan, "joule"]
-    cur_usage = data[cur_chan, "usage"]
+    min_joule = data[cur_chan, "joule"]
+    tmp_chan = 0
+    
 
     for(chan in candidate) {
-
+        
         joule = data[chan, "joule"]
 
-        # Other channel's receive joule is greater than current channel,
-        # which means that channel's usage is also greater than current channel.
-        if(joule >= cur_joule)
-            continue
+        # Compare joule for each channel, and select one with the smallest joule value
+        if(joule < min_joule) {
+            min_joule = joule
+            tmp_chan = chan
+        }
+    }
+}
 
+# Show current chan's info and select chan's info
+function Show() {
 
+    if(!tmp_chan) {
+        # tmp_chan = 0, means no chan better than current chan
+        print tmp_chan
+    }
+    else {
 
-    } # End for candidate
+        cur_joule = data[cur_chan, "joule"]
+        tmp_joule = data[tmp_chan, "joule"]
 
+        printf "%d,%.3f!", cur_chan, cur_joule
+        printf "%d,%.3f", tmp_chan, tmp_joule
+    }
 }
 
 BEGIN {
@@ -91,5 +106,7 @@ BEGIN {
 
     definition()
     extract_data()
-    RSSI_Compare()
+    Choose_Candidate()
+    Compare()
+    Show()
 }
