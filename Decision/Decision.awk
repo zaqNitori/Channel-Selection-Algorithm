@@ -36,10 +36,12 @@ function Calculate() {
     improve = (cur_joule - target_joule) / cur_joule * 100
     
     if(improve >= IMPROVE_THRESHOLD) {
-        switch = 1
+        # Set switch as target channel
+        switch = target_chan
     }
     else {
-        switch = 0
+        # Set switch as current channel
+        switch = cur_chan
     }
     
 }
