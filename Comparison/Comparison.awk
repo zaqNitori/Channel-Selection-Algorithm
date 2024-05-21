@@ -3,9 +3,15 @@
 # Split input first and then do comapred to search for better channel
 #
 
+# Define which area belongs to H M and L, according to RSSI_Throughput experiment result
+function definition() {
+    RSSI_HIGH_EDGE = -45
+    RSSI_MEDIUM_EDGE = -55
+}
+
 function extract_data() {
     # Split the original String to get each channel
-    n = split(_input, tmp, "!")
+    n = split(scan_result, tmp, "!")
 
     # for loop the array
     for(i = 1; i < n; i++) {
@@ -16,32 +22,24 @@ function extract_data() {
         #freq2chan[s[1]] = s[2]
         channels[s[2]] = s[2]
 
-        # store values and can use freq + chan to get them
-        data[s[2], "eff_sig"] = s[3]
-        data[s[2], "eff_aps"] = s[4]
-        data[s[2], "ta"] = s[5]
-        data[s[2], "ts"] = s[6]
-        data[s[2], "usage"] = s[7]
-        data[s[2], "ugsig"] = s[8]
-        data[s[2], "joule"] = s[9]
+        # store values and can use chan to get them
+        data[s[2], "ta"] = s[3]
+        data[s[2], "ts"] = s[4]
+        data[s[2], "usage"] = s[5]
+        data[s[2], "ugsig"] = s[6]
+        data[s[2], "joule"] = s[7]
+        data[s[2], "devs"] = s[8]
     }
 }
 
-# Firstly, we will use Interfere RSSI to determine which channel is better
-# If both chans have similar Interfere RSSI, then we will use Eff_Sig to further compare
-function first_compare() {
+# The rules we use to compare each channel is calculated from truth-table
+# Candidate = !Usage + !UgSig!Devs
+function Choose_Candidate() {
 
     # Get value for current channel
     cur_ugsig = data[cur_chan, "ugsig"]
-    
-    # TODO: Change L with specific RSSI value (dBm)
-    # cur_ugsig < ??
-    # Current channel is clean, so we don't need to do CS.
-    if(cur_ugsig == "L") {
-        print 0
-        return
-    }
-
+    cur_usage = data[cu_chan, "usage"]
+    cur_devs = data[cur_chan, "devs"]
 
     for(chan in channels) {
 
@@ -49,41 +47,66 @@ function first_compare() {
             continue
 
         ugsig = data[chan, "ugsig"]
+        usage = data[chan, "usage"]
+        devs = data[chan, "devs"]
 
-        # TODO: Change H with specific RSSI value (dBm)
-        # ugsig > ??
-        # Other channel's interfere RSSI is higher
-        if(ugsig == "H" || cur_ugsig < ugsig)
-            continue
-
-        # Other channel's interfere RSSI is lower
-        if(cur_ugsig > ugsig) {
+        if(usage < cur_usage) {
+            # Other channel's Usage is less
             candidate[chan] = chan
-            continue
+        }
+        else if(ugsig < cur_ugsig && devs < cur_devs) {
+            # Other channel's UgSig and devs both are less
+            candidate[chan] = chan
         }
 
-        # MM and LL
-        # Should further use Eff APs and Eff Sig to compare
-        {
-            cur_effsig = data[cur_chan, "eff_sig"]
-            cur_aps = data[cur_chan, "eff_aps"]
-            eff_sig = data[chan, "eff_sig"]
-            eff_aps = data[chan, "eff_aps"]
-
-            if(eff_sig < cur_effsig)
-                candidate[chan] = chan
-            else if(eff_sig == cur_effsig && eff_aps < cur_aps)
-                candidate[chan] = chan
-        }
     } # End for channel
 
 }
 
+# Foreach chan in candidate, we compare with their joule 
+# and select one chan with the smallest joule value.
+function Compare() {
+
+    min_joule = data[cur_chan, "joule"]
+    tmp_chan = 0
+    
+
+    for(chan in candidate) {
+        
+        joule = data[chan, "joule"]
+
+        # Compare joule for each channel, and select one with the smallest joule value
+        if(joule < min_joule) {
+            min_joule = joule
+            tmp_chan = chan
+        }
+    }
+}
+
+# Show current chan's info and select chan's info
+function Show() {
+
+    if(!tmp_chan) {
+        # tmp_chan = 0, means no chan better than current chan
+        print tmp_chan
+    }
+    else {
+
+        cur_joule = data[cur_chan, "joule"]
+        tmp_joule = data[tmp_chan, "joule"]
+
+        printf "%d,%.3f!", cur_chan, cur_joule
+        printf "%d,%.3f", tmp_chan, tmp_joule
+    }
+}
 
 BEGIN {
-    _input   = ARGV[1]
+    scan_result   = ARGV[1]
     cur_chan = ARGV[2]
 
+    definition()
     extract_data()
-    first_compare()
+    Choose_Candidate()
+    Compare()
+    Show()
 }
