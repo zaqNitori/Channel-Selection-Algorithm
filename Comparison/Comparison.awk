@@ -38,7 +38,7 @@ function Choose_Candidate() {
 
     # Get value for current channel
     cur_ugsig = data[cur_chan, "ugsig"]
-    cur_usage = data[cu_chan, "usage"]
+    cur_usage = data[cur_chan, "usage"]
     cur_devs = data[cur_chan, "devs"]
 
     for(chan in channels) {
