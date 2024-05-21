@@ -13,15 +13,21 @@ si=$4
 delay=$5
 
 # Avoid multiple AP to scan at the same time
-sleep $delay
+# sleep $delay
 
 cd ~/cs/Monitor
-./monitor.sh -m "${moni_itf}" -t "${target_itf}" -s "${si}" -w monitor
+# ./monitor.sh -m "${moni_itf}" -t "${target_itf}" -s "${si}" -w monitor
 
 # Wait until monitor finish then do Scan
 wait
-sleep 5
+# sleep 5
 
 cd ~/cs/Scan
-./Scan.sh -p "${phy}" -w scan
+scan_result=`./Scan.sh -p "${phy}" -w scan`
+
+
+cd ~/cs/Comparison
+result=`./Comparison.sh "${phy}" "${scan_result}"`
+
+echo $result
 
