@@ -29,7 +29,14 @@ scan_result=`./Scan.sh -p "${phy}" -w scan`
 
 
 cd ~/cs/Comparison
-result=`./Comparison.sh "${scan_result}" $chan`
+compare_result=`./Comparison.sh "${scan_result}" $chan`
 
-echo $result
+cd ~/cs/Decision
+decision=`./Decision.sh "${compare_result}" $chan`
+
+if [ $chan -eq $decision ]; then
+    echo "No switch"
+else
+    echo "Switch channel to $decision"
+fi
 
