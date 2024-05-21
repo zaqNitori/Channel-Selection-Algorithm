@@ -5,10 +5,8 @@
 #
 
 # Get Input
-phy=$1
-data=$2
-
-chan=`awk -f Get_Current_Channel.awk "${phy}"`
+data=$1
+chan=$2
 
 # Split and Comapre
 result=`awk -f Comparison.awk "${data}" $chan`
