@@ -23,7 +23,7 @@ echo cd "${path}" >> "${logFile}"
 tmp=""
 moni_itf=""
 target=""
-si=5
+si=3
 myflag=""
 writeFile=""
 writeFlag=0
@@ -74,10 +74,10 @@ wait
 
 if [ $writeFlag -eq 1 ]; then
     # echo "${now}" >> "${writeFile}"
-    echo "${result}" >> "${writeFile}"
+    echo "${result}" | tee -a "${writeFile}"
 else
     echo "${result}"
 fi
 
-echo "Monitor Finish!!" | tee -a "${logFile}"
+echo "Monitor Finish!!" >> "${logFile}"
 echo "----------End monitor.sh----------" >> "${logFile}"
