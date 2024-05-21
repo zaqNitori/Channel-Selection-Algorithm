@@ -12,6 +12,8 @@ target_itf=$3
 si=$4
 delay=$5
 
+chan=`awk -f Get_Current_Channel.awk ${phy}`
+
 # Avoid multiple AP to scan at the same time
 # sleep $delay
 
@@ -27,7 +29,7 @@ scan_result=`./Scan.sh -p "${phy}" -w scan`
 
 
 cd ~/cs/Comparison
-result=`./Comparison.sh "${phy}" "${scan_result}"`
+result=`./Comparison.sh "${scan_result}" $chan`
 
 echo $result
 
