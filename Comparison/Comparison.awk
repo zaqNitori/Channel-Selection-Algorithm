@@ -96,7 +96,7 @@ function Show() {
         tmp_joule = data[tmp_chan, "joule"]
 
         printf "%d,%.3f!", cur_chan, cur_joule
-        printf "%d,%.3f", tmp_chan, tmp_joule
+        printf "%d,%.3f!", tmp_chan, tmp_joule
     }
 }
 
