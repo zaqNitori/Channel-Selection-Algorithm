@@ -93,13 +93,13 @@ result=`awk -f Combine.awk "${frame_info}" "${debug}"`
 
 if [ $writeFlag -eq 1 ]; then
     # echo "${now}" > "${writeFile}"
-    echo "${result}" >> "${writeFile}"
+    echo "${result}" | tee -a "${writeFile}"
 else
     echo "${result}"
 fi
 
 # Announce that this script is finished
-echo "Scan Finish!!" | tee -a "${logFile}"
+echo "Scan Finish!!" >> "${logFile}"
 echo "----------End Scan.sh----------" >> "${logFile}"
 
 
