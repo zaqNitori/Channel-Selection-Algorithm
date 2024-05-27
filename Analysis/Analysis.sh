@@ -9,6 +9,6 @@ data=$1
 chan=$2
 
 # Split and Comapre
-result=`awk -f Comparison.awk "${data}" $chan`
+result=`awk -f Analysis.awk "${data}" $chan`
 
 echo ${result}
