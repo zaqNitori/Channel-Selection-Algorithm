@@ -31,6 +31,12 @@ scan_result=`./Scan.sh -p "${phy}" -w scan`
 cd ~/cs/Analysis
 analysis_result=`./Analysis.sh "${scan_result}" $chan`
 
+if [ $analysis_result == "0" ]; then
+    echo "No better channel"
+    echo "CS Finish"
+    exit 0
+fi
+
 cd ~/cs/Decision
 decision=`./Decision.sh "${analysis_result}" $chan`
 
