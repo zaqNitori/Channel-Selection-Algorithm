@@ -28,11 +28,11 @@ cd ~/cs/Scan
 scan_result=`./Scan.sh -p "${phy}" -w scan`
 
 
-cd ~/cs/Comparison
-compare_result=`./Comparison.sh "${scan_result}" $chan`
+cd ~/cs/Analysis
+analysis_result=`./Analysis.sh "${scan_result}" $chan`
 
 cd ~/cs/Decision
-decision=`./Decision.sh "${compare_result}" $chan`
+decision=`./Decision.sh "${analysis_result}" $chan`
 
 if [ $chan -eq $decision ]; then
     echo "No switch"
