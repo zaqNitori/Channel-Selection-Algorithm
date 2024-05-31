@@ -32,6 +32,39 @@ function extract_data() {
     }
 }
 
+# From out experiments, the interference cause by chan diff 2, 3, 4 seems in the same level
+# So now we decide to give them same weighting.
+# And both Usage and Joule will take ICI into account.
+function Calculate_ICI() {
+
+    weight = 0.3
+    for(chan in channels) {
+        tmp_chan = 0
+        tmp_joule = 0
+        tmp_usage = 0
+
+        for(i = -3;i <= 3; i++) {
+            if(!i)
+                continue
+
+            tmp_chan = chan + i
+            tmp_joule += weight * data[tmp_chan, "joule"]
+            tmp_usage += weight * data[tmp_chan, "usage"]
+        }
+
+        # Record ICI info in diff arrays, so it won't effect lately calculation
+        data_ICI[chan, "usage"] = tmp_usage
+        data_ICI[chan, "joule"] = tmp_joule
+    }
+
+    for(chan in channels) {
+        # Add ICI back, after whole ICI calculation finish
+        data[chan, "joule"] += data_ICI[chan, "joule"]
+        data[chan, "usage"] += data_ICI[chan, "usage"]
+    }
+
+}
+
 # The rules we use to compare each channel is calculated from truth-table
 # Candidate = !Usage + !UgSig!Devs
 function Choose_Candidate() {
@@ -106,6 +139,7 @@ BEGIN {
 
     definition()
     extract_data()
+    Calculate_ICI()
     Choose_Candidate()
     Compare()
     Show()
