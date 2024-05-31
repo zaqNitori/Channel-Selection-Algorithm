@@ -7,6 +7,8 @@
 function definition() {
     RSSI_HIGH_EDGE = -45
     RSSI_MEDIUM_EDGE = -55
+
+    USAGE_THRESHOLD = 25
 }
 
 function extract_data() {
@@ -61,6 +63,14 @@ function Calculate_ICI() {
         # Add ICI back, after whole ICI calculation finish
         data[chan, "joule"] += data_ICI[chan, "joule"]
         data[chan, "usage"] += data_ICI[chan, "usage"]
+    }
+
+    cur_usage = data[cur_chan, "usage"]
+    if(cur_usage < USAGE_THRESHOLD) {
+        # Output 1 which means current channel's usage does not exceed usage threshold
+        # So will not continue.
+        print 1
+        exit 0
     }
 
 }
