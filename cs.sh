@@ -35,6 +35,10 @@ if [ $analysis_result == "0" ]; then
     echo "No better channel"
     echo "CS Finish"
     exit 0
+elif [ $analysis_result == "1" ]; then
+    echo "Current Usage does not exceed Usage Threshold"
+    echo "CS Finish"
+    exit 0
 fi
 
 cd ~/cs/Decision
