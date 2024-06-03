@@ -9,6 +9,12 @@ function definition() {
     RSSI_MEDIUM_EDGE = -55
 
     USAGE_THRESHOLD = 25
+
+    # ICI Factor
+    for(i=1;i < 4;i++) {
+        factor_ICI[i] = (4 - i) / 4
+        factor_ICI[-i] = (4 - i) / 4
+    }
 }
 
 function extract_data() {
@@ -34,12 +40,11 @@ function extract_data() {
     }
 }
 
-# From out experiments, the interference cause by chan diff 2, 3, 4 seems in the same level
-# So now we decide to give them same weighting.
+# Calculate from overlapping area of adjacent channel
+# we give factor of diff channel 2, 3, 4 => 0.75, 0.5, 0.25
 # And both Usage and Joule will take ICI into account.
 function Calculate_ICI() {
 
-    weight = 0.3
     for(chan in channels) {
         tmp_chan = 0
         tmp_joule = 0
@@ -50,8 +55,8 @@ function Calculate_ICI() {
                 continue
 
             tmp_chan = chan + i
-            tmp_joule += weight * data[tmp_chan, "joule"]
-            tmp_usage += weight * data[tmp_chan, "usage"]
+            tmp_joule += factor_ICI[i] * data[tmp_chan, "joule"]
+            tmp_usage += factor_ICI[i] * data[tmp_chan, "usage"]
         }
 
         # Record ICI info in diff arrays, so it won't effect lately calculation
