@@ -11,10 +11,13 @@ function definition() {
     USAGE_THRESHOLD = 25
 
     # ICI Factor
-    for(i=1;i < 4;i++) {
-        factor_ICI[i] = (4 - i) / 4
-        factor_ICI[-i] = (4 - i) / 4
-    }
+    factor_ICI[1] = 1.13
+    factor_ICI[-1] = 1.13
+    factor_ICI[2] = 1.15
+    factor_ICI[-2] = 1.15
+    factor_ICI[3] = 1.23
+    factor_ICI[-3] = 1.23
+
 }
 
 function extract_data() {
